@@ -1,14 +1,16 @@
+import { APPLICATION_START } from './state/actions';
 import React, { Component } from 'react';
 import './App.css';
 import Rows from './components/Layout/Rows';
 import Widget from './components/Content/Widget';
-import { createStore } from 'redux';
 import { Provider } from 'react-redux';
-import globalState from './state/index';
-
-const store = createStore(globalState);
+import store from './state/index';
 
 class App extends Component {
+    componentDidMount() {
+        store.dispatch({ type: APPLICATION_START });
+    }
+
     render() {
         return (
             <Provider store={store}>

@@ -23,6 +23,8 @@ const middleware = store => next => action => {
             // check its navigation options
             // hoc is settings isFocused prop
         };
+    } else {
+        next(action);
     }
 };
 

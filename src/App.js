@@ -8,7 +8,7 @@ import store from './state/index';
 import FocusableComponent from './components/Layout/FocusableElement';
 
 class App extends Component {
-    componentDidMount() {
+    componentWillMount() {
         store.dispatch({ type: APPLICATION_START });
     }
 
@@ -16,7 +16,10 @@ class App extends Component {
         return (
             <Provider store={store}>
                 <Rows>
-                    <FocusableComponent id="row1">
+                    <FocusableComponent
+                        hasDefaultFocus
+                        id="row1"
+                    >
                         <Widget key="widget-1">1</Widget>
                     </FocusableComponent>
                     <FocusableComponent id="row2">

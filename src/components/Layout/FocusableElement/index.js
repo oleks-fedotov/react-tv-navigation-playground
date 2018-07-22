@@ -1,18 +1,17 @@
-import React from 'react';
 import { connect } from 'react-redux';
-
-const FocusableComponent = ({ isFocused, children }) => {
-    if (React.Children.only(children)) {
-        return React.cloneElement(children, { isFocused });
-    } else {
-        throw new Error('FocusableComponent can have only one child');
-    }
-};
+import { FOCUS_COMPONENT } from './../../../state/actions';
+import FocusableComponent from './FocusableComponent.js';
 
 const mapStateToProps = ({ navigation }, ownProps) => ({
     isFocused: ownProps.id === navigation.focusedId
 });
 
-const connectedFocusableComponent = connect(mapStateToProps)(FocusableComponent);
+const mapDispatchToProps = dispatch => ({
+    focusElement: component =>
+        dispatch({
+            type: FOCUS_COMPONENT,
+            data: component
+        })
+});
 
-export default connectedFocusableComponent;
+export default connect(mapStateToProps, mapDispatchToProps)(FocusableComponent);

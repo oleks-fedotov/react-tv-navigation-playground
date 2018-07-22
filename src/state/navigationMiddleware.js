@@ -1,10 +1,11 @@
 import { APPLICATION_START } from './actions';
 
+const navigationActionPrefix = 'NAVIGATION_';
 const keyCodesDirectionsMapping = {
-    37: 'Left',
-    38: 'Up',
-    39: 'Right',
-    40: 'Down'
+    37: 'LEFT',
+    38: 'UP',
+    39: 'RIGHT',
+    40: 'DOWN'
 };
 
 const middleware = store => next => action => {
@@ -12,12 +13,15 @@ const middleware = store => next => action => {
         window.onkeyup = (e) => {
             const direction = keyCodesDirectionsMapping[e.keyCode];
             if (direction) {
-                console.log(direction);
+                store.dispatch({ type: navigationActionPrefix + direction });
             }
-            // determine direction
+
+            // hoc subscribed to redux
+            // on keyup dispatch action
+            // in navigation reducer handle and select new component (hoc)
             // get current focused element from the store
             // check its navigation options
-            // if there is one - dispatch focus change event with new focused component
+            // hoc is settings isFocused prop
         };
     }
 };

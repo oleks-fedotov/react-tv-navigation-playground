@@ -1,24 +1,49 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import FocusableComponent from '../FocusableElement';
 
-const Rows = ({ children }) =>
-    children.map((child, index) =>
-        <div>
-            {
-                React.cloneElement(child, {
-                    navigationUp: index > 0
-                        ? children[index - 1]
-                        : null,
-                    navigationDown: index < children.length - 1
-                        ? children[index + 1]
-                        : null
-                })
+const Rows = ({
+    id,
+    children,
+    navigationUp: parentNavigationUp,
+    navigationDown: parentNavigationDown,
+    focusedIndex
+}) => {
+    const amountOfChildren = children.length;
+    let refs = Array(amountOfChildren).fill().map(() => React.createRef());
+
+    return children.map((child, index) => (
+        <FocusableComponent
+            id={`${id}-${index}`}
+            ref={refs[index]}
+            navigationUp={index > 0
+                ? refs[index - 1]
+                : parentNavigationUp
             }
-        </div>
-    );
+            navigationDown={index < amountOfChildren - 1
+                ? refs[index + 1]
+                : parentNavigationDown
+            }
+            hasDefaultFocus={focusedIndex === index}
+        >
+            {child}
+        </FocusableComponent>
+    ));
+};
 
 Rows.propTypes = {
-    children: PropTypes.arrayOf(PropTypes.element)
+    id: PropTypes.string.isRequired,
+    children: PropTypes.arrayOf(PropTypes.element),
+    navigationUp: PropTypes.node,
+    navigationDown: PropTypes.node,
+    focusedIndex: PropTypes.number
+};
+
+Rows.defaultProps = {
+    children: [],
+    navigationUp: null,
+    navigationDown: null,
+    focusedIndex: -1
 };
 
 export default Rows;

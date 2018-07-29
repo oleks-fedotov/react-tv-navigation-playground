@@ -9,15 +9,21 @@ const Rows = ({
     navigationDown: parentNavigationDown,
     navigationLeft: parentNavigationLeft,
     navigationRight: parentNavigationRight,
-    focusedIndex
+    focusedIndex,
+    defaultFocusedIndex,
+    isFocused
 }) => {
     const amountOfChildren = children.length;
     let refs = Array(amountOfChildren).fill().map(() => React.createRef());
+    const focusIndex = !isFocused
+        ? focusedIndex
+        : defaultFocusedIndex;
 
     return children.map((child, index) => (
         <FocusableComponent
             id={`${id}-${index}`}
             ref={refs[index]}
+            hasDefaultFocus={focusIndex === index}
             navigationLeft={parentNavigationLeft}
             navigationRight={parentNavigationRight}
             navigationUp={index > 0
@@ -28,7 +34,6 @@ const Rows = ({
                 ? refs[index + 1]
                 : parentNavigationDown
             }
-            hasDefaultFocus={focusedIndex === index}
         >
             {child}
         </FocusableComponent>
@@ -42,7 +47,9 @@ Rows.propTypes = {
     navigationDown: PropTypes.node,
     navigationLeft: PropTypes.node,
     navigationRight: PropTypes.node,
-    focusedIndex: PropTypes.number
+    focusedIndex: PropTypes.number,
+    defaultFocusedIndex: PropTypes.number,
+    isFocused: PropTypes.bool
 };
 
 Rows.defaultProps = {
@@ -51,7 +58,9 @@ Rows.defaultProps = {
     navigationDown: null,
     navigationLeft: null,
     navigationRight: null,
-    focusedIndex: -1
+    focusedIndex: -1,
+    defaultFocusedIndex: 0,
+    isFocused: false
 };
 
 export default Rows;

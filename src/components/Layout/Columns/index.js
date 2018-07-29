@@ -3,23 +3,29 @@ import PropTypes from 'prop-types';
 import FocusableComponent from '../FocusableElement';
 import './style.css';
 
-const Rows = ({
+const Columns = ({
     id,
     children,
     navigationUp: parentNavigationUp,
     navigationDown: parentNavigationDown,
     navigationLeft: parentNavigationLeft,
     navigationRight: parentNavigationRight,
-    focusedIndex
+    focusedIndex,
+    defaultFocusedIndex,
+    isFocused
 }) => {
     const amountOfChildren = children.length;
     let refs = Array(amountOfChildren).fill().map(() => React.createRef());
+    const focusIndex = !isFocused
+        ? focusedIndex
+        : defaultFocusedIndex;
 
-    return <div class="focusable-columns-container">
+    return <div className="focusable-columns-container">
         {children.map((child, index) => (
             <FocusableComponent
                 id={`${id}-${index}`}
                 ref={refs[index]}
+                hasDefaultFocus={focusIndex === index}
                 navigationUp={parentNavigationUp}
                 navigationDown={parentNavigationDown}
                 navigationLeft={index > 0
@@ -30,7 +36,6 @@ const Rows = ({
                     ? refs[index + 1]
                     : parentNavigationRight
                 }
-                hasDefaultFocus={focusedIndex === index}
             >
                 {child}
             </FocusableComponent>
@@ -38,23 +43,27 @@ const Rows = ({
     </div>;
 };
 
-Rows.propTypes = {
+Columns.propTypes = {
     id: PropTypes.string.isRequired,
     children: PropTypes.arrayOf(PropTypes.element),
     navigationUp: PropTypes.node,
     navigationDown: PropTypes.node,
     navigationLeft: PropTypes.node,
     navigationRight: PropTypes.node,
-    focusedIndex: PropTypes.number
+    focusedIndex: PropTypes.number,
+    defaultFocusedIndex: PropTypes.number,
+    isFocused: PropTypes.bool
 };
 
-Rows.defaultProps = {
+Columns.defaultProps = {
     children: [],
     navigationUp: null,
     navigationDown: null,
     navigationLeft: null,
     navigationRight: null,
-    focusedIndex: -1
+    focusedIndex: -1,
+    defaultFocusedIndex: 0,
+    isFocused: false
 };
 
-export default Rows;
+export default Columns;

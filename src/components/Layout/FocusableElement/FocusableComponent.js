@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { PropTypes } from 'prop-types';
 
-class FocusableComponent extends Component {
+class FocusableComponent extends PureComponent {
     constructor(props) {
         super(props);
         const {

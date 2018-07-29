@@ -26,6 +26,11 @@ class App extends Component {
                         <Widget key="widget-2-2">2</Widget>
                         <Widget key="widget-2-3">3</Widget>
                     </Columns>
+                    <Columns id="columns-3">
+                        <Widget key="widget-3-1">1</Widget>
+                        <Widget key="widget-3-2">2</Widget>
+                        <Widget key="widget-3-3">3</Widget>
+                    </Columns>
                 </Rows>
             </Provider>
         );

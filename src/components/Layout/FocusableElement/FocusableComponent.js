@@ -13,12 +13,14 @@ class FocusableComponent extends PureComponent {
             navigationRight
         } = props;
         if (React.Children.only(children)) {
+            this.childRef = React.createRef();
             const newChildProps = {
                 isFocused,
                 navigationUp,
                 navigationDown,
                 navigationLeft,
-                navigationRight
+                navigationRight,
+                ref: this.childRef
             };
             this.state = {
                 componentToRender: React.cloneElement(children, newChildProps)

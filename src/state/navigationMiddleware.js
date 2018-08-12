@@ -10,19 +10,17 @@ const keyCodesDirectionsMapping = {
 
 const middleware = store => next => action => {
     if (action.type === APPLICATION_START) {
-        window.onkeyup = (e) => {
-            const direction = keyCodesDirectionsMapping[e.keyCode];
-            if (direction) {
-                store.dispatch({ type: navigationActionPrefix + direction });
-            }
-
-            // hoc subscribed to redux
-            // on keyup dispatch action
-            // in navigation reducer handle and select new component (hoc)
-            // get current focused element from the store
-            // check its navigation options
-            // hoc is settings isFocused prop
-        };
+        window.addEventListener(
+            'keyup',
+            (e) => {
+                e.preventDefault();
+                const direction = keyCodesDirectionsMapping[e.keyCode];
+                if (direction) {
+                    store.dispatch({ type: navigationActionPrefix + direction });
+                }
+            },
+            false
+        );
     } else {
         next(action);
     }

@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import './App.css';
 import Rows from './components/Layout/Rows';
 import Columns from './components/Layout/Columns';
+import Scroll from './components/Layout/Scroll';
 import Widget from './components/Content/Widget';
 import { Provider } from 'react-redux';
 import store from './state/index';
@@ -12,26 +13,48 @@ class App extends Component {
         store.dispatch({ type: APPLICATION_START });
     }
 
+    getWidgetsForRow = (rowKey) => (numberOfWidgets) => (
+        Array(numberOfWidgets)
+            .fill(0)
+            .map((_, index) => (
+                <Widget key={`widget-${rowKey}-${index}`}>{rowKey}-{index + 1}</Widget>
+            ))
+    );
+
     render() {
         return (
             <Provider store={store}>
-                <Rows id="rows-navigation">
-                    <Columns id="column-1" focusedIndex={0}>
-                        <Widget key="widget-1-1">1</Widget>
-                        <Widget key="widget-1-2">2</Widget>
-                        <Widget key="widget-1-3">3</Widget>
-                    </Columns>
-                    <Columns id="columns-2">
-                        <Widget key="widget-2-1">1</Widget>
-                        <Widget key="widget-2-2">2</Widget>
-                        <Widget key="widget-2-3">3</Widget>
-                    </Columns>
-                    <Columns id="columns-3">
-                        <Widget key="widget-3-1">1</Widget>
-                        <Widget key="widget-3-2">2</Widget>
-                        <Widget key="widget-3-3">3</Widget>
-                    </Columns>
-                </Rows>
+                <Scroll>
+                    <Rows id="rows-navigation">
+                        <Columns id="column-1" focusedIndex={0}>
+                            {this.getWidgetsForRow('1')(10)}
+                        </Columns>
+                        <Columns id="columns-2">
+                            {this.getWidgetsForRow('2')(10)}
+                        </Columns>
+                        <Columns id="columns-3">
+                            {this.getWidgetsForRow('3')(10)}
+                        </Columns>
+                        <Columns id="columns-4">
+                            {this.getWidgetsForRow('4')(10)}
+                        </Columns>
+                        <Columns id="columns-5">
+                            {this.getWidgetsForRow('5')(10)}
+                        </Columns>
+                        <Columns id="columns-6">
+                            {this.getWidgetsForRow('6')(10)}
+                        </Columns>
+                        <Columns id="columns-7">
+                            {this.getWidgetsForRow('7')(10)}
+                        </Columns>
+                        <Columns id="columns-8">
+                            {this.getWidgetsForRow('8')(10)}
+                        </Columns>
+                        <Columns id="columns-9">
+                            {this.getWidgetsForRow('9')(10)}
+                        </Columns>
+                    </Rows>
+                </Scroll>
             </Provider>
         );
     }

@@ -30,7 +30,6 @@ class Scroll extends PureComponent {
         return elementCenter - windowCenter;
     }
 
-
     render() {
         return (
             <div ref={this.elementRef} style={{ height: '100%', width: '100%', 'overflow-y': 'scroll' }}>

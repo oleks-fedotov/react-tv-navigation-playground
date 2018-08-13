@@ -21,7 +21,7 @@ class Columns extends PureComponent {
     }
 
     componentDidGetFocused(props, prevProps) {
-        return props.isFocused && props.isFocuseds !== prevProps;
+        return props.isFocused && props.isFocused !== prevProps.isFocused;
     }
 
     render() {

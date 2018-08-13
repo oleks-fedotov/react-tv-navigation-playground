@@ -14,10 +14,13 @@ class Rows extends PureComponent {
     }
 
     componentDidUpdate(prevProps) {
-        debugger;
-        if (this.props.isFocused !== prevProps.isFocused) {
+        if (this.componentDidGetFocused(this.props, prevProps)) {
             this.props.focusElement(this.state.refs[this.props.defaultFocusedIndex].current);
         }
+    }
+
+    componentDidGetFocused(props, prevProps) {
+        return props.isFocused && props.isFocused !== prevProps.isFocused;
     }
 
     render() {

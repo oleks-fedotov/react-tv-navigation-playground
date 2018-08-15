@@ -25,32 +25,61 @@ class App extends Component {
         return (
             <Provider store={store}>
                 <Scroll>
-                    <Rows id="rows-navigation">
-                        <Columns id="column-1" focusedIndex={0}>
-                            {this.getWidgetsForRow('1')(10)}
+                    <Rows id="rows-navigation" elementClassName="row">
+                        <Columns
+                            withScroll
+                            id="column-1"
+                            focusedIndex={0}
+                            elementClassName="row-item"
+                        >
+                            {this.getWidgetsForRow('1')(20)}
                         </Columns>
-                        <Columns id="columns-2">
+                        <Columns
+                            id="columns-2"
+                            elementClassName="row-item"
+                        >
                             {this.getWidgetsForRow('2')(10)}
                         </Columns>
-                        <Columns id="columns-3">
+                        <Columns
+                            id="columns-3"
+                            elementClassName="row-item"
+                        >
                             {this.getWidgetsForRow('3')(10)}
                         </Columns>
-                        <Columns id="columns-4">
+                        <Columns
+                            id="columns-4"
+                            elementClassName="row-item"
+                        >
                             {this.getWidgetsForRow('4')(10)}
                         </Columns>
-                        <Columns id="columns-5">
+                        <Columns
+                            id="columns-5"
+                            elementClassName="row-item"
+                        >
                             {this.getWidgetsForRow('5')(10)}
                         </Columns>
-                        <Columns id="columns-6">
+                        <Columns
+                            id="columns-6"
+                            elementClassName="row-item"
+                        >
                             {this.getWidgetsForRow('6')(10)}
                         </Columns>
-                        <Columns id="columns-7">
+                        <Columns
+                            id="columns-7"
+                            elementClassName="row-item"
+                        >
                             {this.getWidgetsForRow('7')(10)}
                         </Columns>
-                        <Columns id="columns-8">
+                        <Columns
+                            id="columns-8"
+                            elementClassName="row-item"
+                        >
                             {this.getWidgetsForRow('8')(10)}
                         </Columns>
-                        <Columns id="columns-9">
+                        <Columns
+                            id="columns-9"
+                            elementClassName="row-item"
+                        >
                             {this.getWidgetsForRow('9')(10)}
                         </Columns>
                     </Rows>

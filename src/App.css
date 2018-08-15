@@ -26,3 +26,12 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.row-item {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.row {
+  margin: 10px;
+}

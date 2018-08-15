@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom';
+import classnames from 'classnames';
 import FocusableComponent from '../FocusableElement';
 import './style.css';
 
@@ -12,6 +14,7 @@ class Columns extends PureComponent {
             amountOfChildren,
             refs: Array(amountOfChildren).fill().map(() => React.createRef())
         };
+        this.offsetLeft = 0;
     }
 
     componentDidUpdate(prevProps) {
@@ -20,14 +23,44 @@ class Columns extends PureComponent {
         }
     }
 
+    static getDerivedStateFromProps({ focusedComponent }) {
+        if (focusedComponent) {
+            const element = ReactDOM.findDOMNode(focusedComponent)
+            const focusedRect = element.getBoundingClientRect();
+            return {
+                offsetLeft: focusedRect.left
+            };
+        } else {
+            return null;
+        }
+    }
+
     componentDidGetFocused(props, prevProps) {
         return props.isFocused && props.isFocused !== prevProps.isFocused;
+    }
+
+    getLeftOffsetForScroll(focusedComponent) {
+        if (focusedComponent) {
+            const element = ReactDOM.findDOMNode(focusedComponent)
+            const focusedRect = element.getBoundingClientRect();
+            this.offsetLeft = this.offsetLeft + focusedRect.left;
+
+            return {
+                transform: `translate(-${this.offsetLeft}px)`
+            };
+        } else {
+            return {};
+        }
     }
 
     render() {
         const {
             id,
+            className,
+            withScroll,
+            focusedComponent,
             children,
+            elementClassName,
             navigationUp: parentNavigationUp,
             navigationDown: parentNavigationDown,
             navigationLeft: parentNavigationLeft,
@@ -38,33 +71,41 @@ class Columns extends PureComponent {
         const { refs } = this.state;
 
         return (
-            <div className="focusable-columns-container">
-                {children.map((child, index) => (
-                    <FocusableComponent
-                        id={`${id}-${index}`}
-                        ref={refs[index]}
-                        hasDefaultFocus={focusedIndex === index}
-                        navigationUp={parentNavigationUp}
-                        navigationDown={parentNavigationDown}
-                        navigationLeft={index > 0
-                            ? refs[index - 1]
-                            : parentNavigationLeft
-                        }
-                        navigationRight={index < this.state.amountOfChildren - 1
-                            ? refs[index + 1]
-                            : parentNavigationRight
-                        }
-                    >
-                        {child}
-                    </FocusableComponent>
-                ))}
+            <div className={classnames(withScroll && 'with-scroll')}>
+                <div
+                    className={classnames('focusable-columns-container', className)}
+                    style={withScroll ? this.getLeftOffsetForScroll(focusedComponent) : {}}
+                >
+                    {children.map((child, index) => (
+                        <FocusableComponent
+                            id={`${id}-${index}`}
+                            className={elementClassName}
+                            ref={refs[index]}
+                            hasDefaultFocus={focusedIndex === index}
+                            navigationUp={parentNavigationUp}
+                            navigationDown={parentNavigationDown}
+                            navigationLeft={index > 0
+                                ? refs[index - 1]
+                                : parentNavigationLeft
+                            }
+                            navigationRight={index < this.state.amountOfChildren - 1
+                                ? refs[index + 1]
+                                : parentNavigationRight
+                            }
+                        >
+                            {child}
+                        </FocusableComponent>
+                    ))}
+                </div>
             </div>);
     }
 }
 
 Columns.propTypes = {
     id: PropTypes.string.isRequired,
+    className: PropTypes.string,
     children: PropTypes.arrayOf(PropTypes.element),
+    withScroll: PropTypes.bool,
     navigationUp: PropTypes.node,
     navigationDown: PropTypes.node,
     navigationLeft: PropTypes.node,
@@ -76,7 +117,9 @@ Columns.propTypes = {
 };
 
 Columns.defaultProps = {
+    className: '',
     children: [],
+    withScroll: false,
     navigationUp: null,
     navigationDown: null,
     navigationLeft: null,
@@ -88,4 +131,3 @@ Columns.defaultProps = {
 };
 
 export default Columns;
-

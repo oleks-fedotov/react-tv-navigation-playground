@@ -10,7 +10,8 @@ class Widget extends Component {
         return (
             <div className={classnames([
                 cx('widget'),
-                this.props.isFocused && cx('focused')
+                this.props.isFocused && cx('focused'),
+                this.props.className
             ])}>
                 {this.props.children}
             </div>
@@ -19,11 +20,13 @@ class Widget extends Component {
 };
 
 Widget.propTypes = {
-    isFocused: PropTypes.bool
+    isFocused: PropTypes.bool,
+    className: PropTypes.string
 };
 
 Widget.defaultProps = {
-    isFocused: false
+    isFocused: false,
+    className: ''
 };
 
 export default Widget;

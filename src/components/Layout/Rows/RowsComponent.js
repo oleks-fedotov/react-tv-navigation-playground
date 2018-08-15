@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import FocusableComponent from '../FocusableElement';
-
 class Rows extends PureComponent {
     constructor(props) {
         super(props);
@@ -27,6 +26,8 @@ class Rows extends PureComponent {
         const {
             id,
             children,
+            className,
+            elementClassName,
             navigationUp: parentNavigationUp,
             navigationDown: parentNavigationDown,
             navigationLeft: parentNavigationLeft,
@@ -36,31 +37,36 @@ class Rows extends PureComponent {
 
         const { refs } = this.state;
 
-        return children.map((child, index) => (
-            <FocusableComponent
-                id={`${id}-${index}`}
-                ref={refs[index]}
-                hasDefaultFocus={focusedIndex === index}
-                navigationLeft={parentNavigationLeft}
-                navigationRight={parentNavigationRight}
-                navigationUp={index > 0
-                    ? refs[index - 1]
-                    : parentNavigationUp
-                }
-                navigationDown={index < this.state.amountOfChildren - 1
-                    ? refs[index + 1]
-                    : parentNavigationDown
-                }
-            >
-                {child}
-            </FocusableComponent>
-        ));
+        return <div className={className}>
+            {children.map((child, index) => (
+                <FocusableComponent
+                    id={`${id}-${index}`}
+                    className={elementClassName}
+                    ref={refs[index]}
+                    hasDefaultFocus={focusedIndex === index}
+                    navigationLeft={parentNavigationLeft}
+                    navigationRight={parentNavigationRight}
+                    navigationUp={index > 0
+                        ? refs[index - 1]
+                        : parentNavigationUp
+                    }
+                    navigationDown={index < this.state.amountOfChildren - 1
+                        ? refs[index + 1]
+                        : parentNavigationDown
+                    }
+                >
+                    {child}
+                </FocusableComponent>
+            ))}
+        </div>
     }
 }
 
 Rows.propTypes = {
     id: PropTypes.string.isRequired,
     children: PropTypes.arrayOf(PropTypes.element),
+    className: PropTypes.string,
+    elementClassName: PropTypes.string,
     navigationUp: PropTypes.node,
     navigationDown: PropTypes.node,
     navigationLeft: PropTypes.node,
@@ -73,6 +79,8 @@ Rows.propTypes = {
 
 Rows.defaultProps = {
     children: [],
+    className: '',
+    elementClassName: '',
     navigationUp: null,
     navigationDown: null,
     navigationLeft: null,

@@ -11,7 +11,7 @@ const keyCodesDirectionsMapping = {
 const middleware = store => next => action => {
     if (action.type === APPLICATION_START) {
         window.addEventListener(
-            'keyup',
+            'keydown',
             (e) => {
                 e.preventDefault();
                 const direction = keyCodesDirectionsMapping[e.keyCode];

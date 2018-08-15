@@ -2,8 +2,6 @@ import { connect } from 'react-redux';
 import { FOCUS_COMPONENT } from './../../../state/actions';
 import Rows from './RowsComponent.js';
 
-const mapStateToProps = () => ({});
-
 const mapDispatchToProps = dispatch => ({
     focusElement: component =>
         dispatch({
@@ -12,4 +10,4 @@ const mapDispatchToProps = dispatch => ({
         })
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Rows);
+export default connect(null, mapDispatchToProps)(Rows);

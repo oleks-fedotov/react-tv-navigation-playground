@@ -1,11 +1,11 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import classnames from 'classnames';
 import FocusableComponent from '../FocusableElement';
 import './style.css';
 
-class Columns extends PureComponent {
+class Columns extends Component {
     constructor(props) {
         super(props);
 
@@ -15,6 +15,13 @@ class Columns extends PureComponent {
             refs: Array(amountOfChildren).fill().map(() => React.createRef())
         };
         this.offsetLeft = 0;
+        this.scrollableContainer = React.createRef();
+    }
+
+    shouldComponentUpdate(nextProps) {
+        const focuseInsideWasChanged = this.state.refs.find((childRef) => nextProps.focusedComponent === childRef.current);
+        const componentGetFocused = this.componentDidGetFocused(nextProps, this.props);
+        return focuseInsideWasChanged || componentGetFocused;
     }
 
     componentDidUpdate(prevProps) {
@@ -23,9 +30,15 @@ class Columns extends PureComponent {
         }
     }
 
+    componentDidMount() {
+        if (this.scrollableContainer.current) {
+            this.scrollableContainerOffsetLeft = this.scrollableContainer.current.offsetLeft;
+        }
+    }
+
     static getDerivedStateFromProps({ focusedComponent }) {
         if (focusedComponent) {
-            const element = ReactDOM.findDOMNode(focusedComponent)
+            const element = ReactDOM.findDOMNode(focusedComponent);
             const focusedRect = element.getBoundingClientRect();
             return {
                 offsetLeft: focusedRect.left
@@ -43,7 +56,7 @@ class Columns extends PureComponent {
         if (focusedComponent) {
             const element = ReactDOM.findDOMNode(focusedComponent)
             const focusedRect = element.getBoundingClientRect();
-            this.offsetLeft = this.offsetLeft + focusedRect.left;
+            this.offsetLeft = this.offsetLeft + focusedRect.left - this.scrollableContainerOffsetLeft;
 
             return {
                 transform: `translate(-${this.offsetLeft}px)`
@@ -71,9 +84,10 @@ class Columns extends PureComponent {
         const { refs } = this.state;
 
         return (
-            <div className={classnames(withScroll && 'with-scroll')}>
+            <div className={classnames(withScroll && 'with-scroll', className)}>
                 <div
-                    className={classnames('focusable-columns-container', className)}
+                    className="focusable-columns-container"
+                    ref={this.scrollableContainer}
                     style={withScroll ? this.getLeftOffsetForScroll(focusedComponent) : {}}
                 >
                     {children.map((child, index) => (

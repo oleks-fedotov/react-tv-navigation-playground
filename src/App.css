@@ -14,24 +14,19 @@
   color: white;
 }
 
-.App-title {
-  font-size: 1.5em;
-}
-
-.App-intro {
-  font-size: large;
-}
-
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
 .row-item {
     margin-left: 10px;
     margin-right: 10px;
 }
 
 .row {
-  margin: 10px;
+  margin: 20px;
+}
+
+.row div:first-child {
+  margin-left: 0;
+}
+
+.row div:last-child {
+  margin-right: 0;
 }

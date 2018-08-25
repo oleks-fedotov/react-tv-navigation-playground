@@ -84,9 +84,8 @@ class Columns extends Component {
         const { refs } = this.state;
 
         return (
-            <div className={classnames(withScroll && 'with-scroll', className)}>
+            <div className={classnames('columns-continer', withScroll && 'with-scroll', className)}>
                 <div
-                    className="focusable-columns-container"
                     ref={this.scrollableContainer}
                     style={withScroll ? this.getLeftOffsetForScroll(focusedComponent) : {}}
                 >

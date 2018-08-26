@@ -19,14 +19,19 @@ class Columns extends Component {
     }
 
     shouldComponentUpdate(nextProps) {
-        const focuseInsideWasChanged = this.state.refs.find((childRef) => nextProps.focusedComponent === childRef.current);
+        const focusInsideWasChanged = this.state.refs
+            .find((childRef) => nextProps.focusedComponent === childRef.current);
         const componentGetFocused = this.componentDidGetFocused(nextProps, this.props);
-        return focuseInsideWasChanged || componentGetFocused;
+        if (this.props.withScroll && focusInsideWasChanged) {
+            this.saveFocusedIndex(nextProps.focusedComponent);
+        }
+        return focusInsideWasChanged || componentGetFocused;
     }
 
     componentDidUpdate(prevProps) {
         if (this.componentDidGetFocused(this.props, prevProps)) {
-            this.props.focusElement(this.state.refs[this.props.defaultFocusedIndex].current);
+            const indexToFocus = this.getLastFocusedIndex() || this.props.defaultFocusedIndex;
+            this.props.focusElement(this.state.refs[indexToFocus].current);
         }
     }
 
@@ -50,6 +55,14 @@ class Columns extends Component {
 
     componentDidGetFocused(props, prevProps) {
         return props.isFocused && props.isFocused !== prevProps.isFocused;
+    }
+
+    saveFocusedIndex(focusedComponent) {
+        this.focusedIndex = this.state.refs.findIndex(childRef => childRef.current === focusedComponent);
+    }
+
+    getLastFocusedIndex() {
+        return this.focusedIndex;
     }
 
     getLeftOffsetForScroll(focusedComponent) {

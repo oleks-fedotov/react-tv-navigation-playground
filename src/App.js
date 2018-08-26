@@ -35,48 +35,56 @@ class App extends Component {
                             {this.getWidgetsForRow('1')(20)}
                         </Columns>
                         <Columns
+                            withScroll
                             id="columns-2"
                             elementClassName="row-item"
                         >
                             {this.getWidgetsForRow('2')(10)}
                         </Columns>
                         <Columns
+                            withScroll
                             id="columns-3"
                             elementClassName="row-item"
                         >
                             {this.getWidgetsForRow('3')(10)}
                         </Columns>
                         <Columns
+                            withScroll
                             id="columns-4"
                             elementClassName="row-item"
                         >
                             {this.getWidgetsForRow('4')(10)}
                         </Columns>
                         <Columns
+                            withScroll
                             id="columns-5"
                             elementClassName="row-item"
                         >
                             {this.getWidgetsForRow('5')(10)}
                         </Columns>
                         <Columns
+                            withScroll
                             id="columns-6"
                             elementClassName="row-item"
                         >
                             {this.getWidgetsForRow('6')(10)}
                         </Columns>
                         <Columns
+                            withScroll
                             id="columns-7"
                             elementClassName="row-item"
                         >
                             {this.getWidgetsForRow('7')(10)}
                         </Columns>
                         <Columns
+                            withScroll
                             id="columns-8"
                             elementClassName="row-item"
                         >
                             {this.getWidgetsForRow('8')(10)}
                         </Columns>
                         <Columns
+                            withScroll
                             id="columns-9"
                             elementClassName="row-item"
                         >

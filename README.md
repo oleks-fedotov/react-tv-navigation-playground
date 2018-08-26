@@ -8,7 +8,8 @@ Intead of traversing through the tree of React components, the completely differ
 
 The core idea is that each focusable component knows about its neighbours, hence has a reference to them. To support the navigation process the system only needs to have a reference to the current focused element, then when the user input is handled get the neighbour reference for the corresponding direction and make this neighbour the next focused element.
 
-## Core building blocks
+![Diagram](./img/react-tv-redux-navigation.png)
 
+## Core building blocks
 
 ## Focused state management

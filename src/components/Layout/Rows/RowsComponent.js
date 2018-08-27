@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import FocusableComponent from '../FocusableElement';
+import FocusableComponent from '../FocusableComponent';
 class Rows extends PureComponent {
     constructor(props) {
         super(props);

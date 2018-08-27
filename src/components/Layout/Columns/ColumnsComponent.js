@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import classnames from 'classnames';
-import FocusableComponent from '../FocusableElement';
+import FocusableComponent from '../FocusableComponent';
 import './style.css';
 
 class Columns extends Component {

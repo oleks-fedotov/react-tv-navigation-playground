@@ -70,8 +70,12 @@ class Columns extends Component {
             const element = ReactDOM.findDOMNode(focusedComponent)
             const focusedRect = element.getBoundingClientRect();
             this.offsetLeft = this.offsetLeft + focusedRect.left - this.scrollableContainerOffsetLeft;
-
+            const offset = `translate(-${this.offsetLeft}px)`;
             return {
+                '-webkit-transform': offset,
+                '-moz-transform': offset,
+                '-ms-transform': offset,
+                '-o-transform': offset,
                 transform: `translate(-${this.offsetLeft}px)`
             };
         } else {

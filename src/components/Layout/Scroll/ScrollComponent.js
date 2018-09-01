@@ -19,18 +19,18 @@ class Scroll extends PureComponent {
         });
     }
 
-    static getDerivedStateFromProps(props, state) {
-        if (props.focusedComponent && state.shouldScrollContent) {
-            const element = ReactDOM.findDOMNode(props.focusedComponent)
+    static getDerivedStateFromProps({ focusedComponent }, { shouldScrollContent, offsetTop, maxOffsetTop, windowHeight }) {
+        if (focusedComponent && shouldScrollContent) {
+            const element = ReactDOM.findDOMNode(focusedComponent)
             const focusedRect = element.getBoundingClientRect();
 
-            const offsetTopDelta = Scroll.getNewScrollPositionOffset(focusedRect.top, focusedRect.height, state.windowHeight);
-            const newOffsetTop = state.offsetTop + offsetTopDelta;
+            const offsetTopDelta = Scroll.getNewScrollPositionOffset(focusedRect.top, focusedRect.height, windowHeight);
+            const newOffsetTop = offsetTop + offsetTopDelta;
 
             return {
                 offsetTop: Math.max(
                     0,
-                    Math.min(state.maxOffsetTop, newOffsetTop)
+                    Math.min(maxOffsetTop, newOffsetTop)
                 )
             };
         }

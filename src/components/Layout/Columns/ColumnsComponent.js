@@ -76,7 +76,7 @@ class Columns extends Component {
                 '-moz-transform': offset,
                 '-ms-transform': offset,
                 '-o-transform': offset,
-                transform: `translate(-${this.offsetLeft}px)`
+                transform: offset
             };
         } else {
             return {};

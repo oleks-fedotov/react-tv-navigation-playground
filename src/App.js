@@ -27,14 +27,16 @@ class App extends Component {
                 <Scroll>
                     <Rows id="rows-navigation" elementClassName="row">
                         <Columns
+                            key="columns-1"
                             withScroll
-                            id="column-1"
+                            id="columns-1"
                             focusedIndex={0}
                             elementClassName="row-item"
                         >
                             {this.getWidgetsForRow('1')(20)}
                         </Columns>
                         <Columns
+                            key="columns-2"
                             withScroll
                             id="columns-2"
                             elementClassName="row-item"
@@ -42,6 +44,7 @@ class App extends Component {
                             {this.getWidgetsForRow('2')(10)}
                         </Columns>
                         <Columns
+                            key="columns-3"
                             withScroll
                             id="columns-3"
                             elementClassName="row-item"
@@ -49,6 +52,7 @@ class App extends Component {
                             {this.getWidgetsForRow('3')(10)}
                         </Columns>
                         <Columns
+                            key="columns-4"
                             withScroll
                             id="columns-4"
                             elementClassName="row-item"
@@ -56,6 +60,7 @@ class App extends Component {
                             {this.getWidgetsForRow('4')(10)}
                         </Columns>
                         <Columns
+                            key="columns-5"
                             withScroll
                             id="columns-5"
                             elementClassName="row-item"
@@ -63,6 +68,7 @@ class App extends Component {
                             {this.getWidgetsForRow('5')(10)}
                         </Columns>
                         <Columns
+                            key="columns-6"
                             withScroll
                             id="columns-6"
                             elementClassName="row-item"
@@ -70,6 +76,7 @@ class App extends Component {
                             {this.getWidgetsForRow('6')(10)}
                         </Columns>
                         <Columns
+                            key="columns-7"
                             withScroll
                             id="columns-7"
                             elementClassName="row-item"
@@ -77,6 +84,7 @@ class App extends Component {
                             {this.getWidgetsForRow('7')(10)}
                         </Columns>
                         <Columns
+                            key="columns-8"
                             withScroll
                             id="columns-8"
                             elementClassName="row-item"
@@ -84,6 +92,7 @@ class App extends Component {
                             {this.getWidgetsForRow('8')(10)}
                         </Columns>
                         <Columns
+                            key="columns-9"
                             withScroll
                             id="columns-9"
                             elementClassName="row-item"

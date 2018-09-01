@@ -12,9 +12,9 @@ class Columns extends Component {
         const amountOfChildren = props.children.length;
         this.state = {
             amountOfChildren,
-            refs: Array(amountOfChildren).fill().map(() => React.createRef())
+            refs: Array(amountOfChildren).fill().map(() => React.createRef()),
+            offsetLeft: 0
         };
-        this.offsetLeft = 0;
         this.scrollableContainer = React.createRef();
     }
 
@@ -37,16 +37,19 @@ class Columns extends Component {
 
     componentDidMount() {
         if (this.scrollableContainer.current) {
-            this.scrollableContainerOffsetLeft = this.scrollableContainer.current.offsetLeft;
+            this.setState({
+                containerOffsetLeft: this.scrollableContainer.current.offsetLeft
+            });
         }
     }
 
-    static getDerivedStateFromProps({ focusedComponent }) {
-        if (focusedComponent) {
-            const element = ReactDOM.findDOMNode(focusedComponent);
+    static getDerivedStateFromProps({ focusedComponent, withScroll }, { offsetLeft, containerOffsetLeft }) {
+        if (focusedComponent && withScroll) {
+            const element = ReactDOM.findDOMNode(focusedComponent)
             const focusedRect = element.getBoundingClientRect();
+            const newOffsetLeft = offsetLeft + focusedRect.left - containerOffsetLeft;
             return {
-                offsetLeft: focusedRect.left
+                offsetLeft: newOffsetLeft
             };
         } else {
             return null;
@@ -65,22 +68,15 @@ class Columns extends Component {
         return this.focusedIndex;
     }
 
-    getLeftOffsetForScroll(focusedComponent) {
-        if (focusedComponent) {
-            const element = ReactDOM.findDOMNode(focusedComponent)
-            const focusedRect = element.getBoundingClientRect();
-            this.offsetLeft = this.offsetLeft + focusedRect.left - this.scrollableContainerOffsetLeft;
-            const offset = `translate(-${this.offsetLeft}px)`;
-            return {
-                '-webkit-transform': offset,
-                '-moz-transform': offset,
-                '-ms-transform': offset,
-                '-o-transform': offset,
-                transform: offset
-            };
-        } else {
-            return {};
-        }
+    getLeftOffsetStyleForScroll(offsetLeftValue) {
+        const offsetStyle = `translate(-${offsetLeftValue}px)`;
+        return {
+            WebkitTransform: offsetStyle,
+            MozTransform: offsetStyle,
+            MsTransform: offsetStyle,
+            OTransform: offsetStyle,
+            transform: offsetStyle
+        };
     }
 
     render() {
@@ -88,7 +84,6 @@ class Columns extends Component {
             id,
             className,
             withScroll,
-            focusedComponent,
             children,
             elementClassName,
             navigationUp: parentNavigationUp,
@@ -98,16 +93,17 @@ class Columns extends Component {
             focusedIndex
         } = this.props;
 
-        const { refs } = this.state;
+        const { refs, offsetLeft } = this.state;
 
         return (
-            <div className={classnames('columns-continer', withScroll && 'with-scroll', className)}>
+            <div className={classnames('columns-container', withScroll && 'with-scroll', className)}>
                 <div
                     ref={this.scrollableContainer}
-                    style={withScroll ? this.getLeftOffsetForScroll(focusedComponent) : {}}
+                    style={withScroll ? this.getLeftOffsetStyleForScroll(offsetLeft) : {}}
                 >
                     {children.map((child, index) => (
                         <FocusableComponent
+                            key={`${id}-${index}`}
                             id={`${id}-${index}`}
                             className={elementClassName}
                             ref={refs[index]}

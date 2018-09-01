@@ -33,6 +33,8 @@ class Scroll extends PureComponent {
                     Math.min(maxOffsetTop, newOffsetTop)
                 )
             };
+        } else {
+            return null;
         }
     }
 
@@ -45,10 +47,10 @@ class Scroll extends PureComponent {
     static getElementTransformStyle(offsetTop) {
         const offset = `translateY(-${offsetTop}px)`;
         return {
-            '-webkit-transform': offset,
-            '-moz-transform': offset,
-            '-ms-transform': offset,
-            '-o-transform': offset,
+            WebkitTransform: offset,
+            MozTransform: offset,
+            MsTransform: offset,
+            OTransform: offset,
             transform: offset
         };
     }

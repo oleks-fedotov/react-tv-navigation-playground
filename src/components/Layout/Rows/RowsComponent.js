@@ -40,6 +40,7 @@ class Rows extends PureComponent {
         return <div className={className}>
             {children.map((child, index) => (
                 <FocusableComponent
+                    key={`${id}-${index}`}
                     id={`${id}-${index}`}
                     className={elementClassName}
                     ref={refs[index]}

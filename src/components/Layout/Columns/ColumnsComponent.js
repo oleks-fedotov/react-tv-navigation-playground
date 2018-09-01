@@ -134,21 +134,25 @@ Columns.propTypes = {
     className: PropTypes.string,
     children: PropTypes.arrayOf(PropTypes.element),
     withScroll: PropTypes.bool,
+    rowHeader: PropTypes.node,
+
     navigationUp: PropTypes.node,
     navigationDown: PropTypes.node,
     navigationLeft: PropTypes.node,
     navigationRight: PropTypes.node,
+
     focusedIndex: PropTypes.number,
     defaultFocusedIndex: PropTypes.number,
     isFocused: PropTypes.bool,
-    focusElement: PropTypes.func,
-    rowHeader: PropTypes.node
+
+    focusElement: PropTypes.func
 };
 
 Columns.defaultProps = {
     className: '',
     children: [],
     withScroll: false,
+    rowHeader: null,
     navigationUp: null,
     navigationDown: null,
     navigationLeft: null,
@@ -156,8 +160,7 @@ Columns.defaultProps = {
     focusedIndex: -1,
     defaultFocusedIndex: 0,
     isFocused: false,
-    focusElement: () => { },
-    rowHeader: null
+    focusElement: () => { }
 };
 
 export default Columns;

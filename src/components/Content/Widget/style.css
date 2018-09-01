@@ -15,3 +15,8 @@
     background-color: lightskyblue;
     border: darkgray 2px solid;
 }
+
+.widget:hover {
+    background-color: lightskyblue;
+    border: 2px solid yellow;
+}

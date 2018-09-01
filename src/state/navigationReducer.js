@@ -1,5 +1,10 @@
-import { FOCUS_COMPONENT, NAVIGATION_DOWN, NAVIGATION_UP, NAVIGATION_LEFT, NAVIGATION_RIGHT } from './actions';
-const reducer = (state = {}, action) => {
+import { FOCUS_COMPONENT, NAVIGATION_DOWN, NAVIGATION_UP, NAVIGATION_LEFT, NAVIGATION_RIGHT, ACTIVATE_POINTER, DEACTIVATE_POINTER } from './actions';
+
+const defaultState = {
+    pointerActive: false
+};
+
+const reducer = (state = defaultState, action) => {
     switch (action.type) {
         case FOCUS_COMPONENT:
             return {
@@ -41,6 +46,22 @@ const reducer = (state = {}, action) => {
                     focusedId: curFocused.props.navigationRight.current.props.id
                 }
                 : state;
+        }
+        case ACTIVATE_POINTER: {
+            return state.pointerActive
+                ? state
+                : {
+                    ...state,
+                    focusedId: undefined,
+                    pointerActive: true
+                };
+        }
+        case DEACTIVATE_POINTER: {
+            return {
+                ...state,
+                focusedId: state.focusedComponent.props.id,
+                pointerActive: false
+            };
         }
         default:
             return state;

@@ -7,6 +7,7 @@ import Scroll from './components/Layout/Scroll';
 import Widget from './components/Content/Widget';
 import { Provider } from 'react-redux';
 import store from './state/index';
+import RowHeader from './components/Content/RowHeader';
 
 class App extends Component {
     componentWillMount() {
@@ -27,6 +28,7 @@ class App extends Component {
                 <Scroll>
                     <Rows id="rows-navigation" elementClassName="row">
                         <Columns
+                            rowHeader={<RowHeader title="Row 1" />}
                             key="columns-1"
                             withScroll
                             id="columns-1"
@@ -36,6 +38,7 @@ class App extends Component {
                             {this.getWidgetsForRow('1')(20)}
                         </Columns>
                         <Columns
+                            rowHeader={<RowHeader title="Row 2" />}
                             key="columns-2"
                             withScroll
                             id="columns-2"
@@ -44,6 +47,7 @@ class App extends Component {
                             {this.getWidgetsForRow('2')(10)}
                         </Columns>
                         <Columns
+                            rowHeader={<RowHeader title="Row 3" />}
                             key="columns-3"
                             withScroll
                             id="columns-3"
@@ -52,6 +56,7 @@ class App extends Component {
                             {this.getWidgetsForRow('3')(10)}
                         </Columns>
                         <Columns
+                            rowHeader={<RowHeader title="Row 4" />}
                             key="columns-4"
                             withScroll
                             id="columns-4"
@@ -60,6 +65,7 @@ class App extends Component {
                             {this.getWidgetsForRow('4')(10)}
                         </Columns>
                         <Columns
+                            rowHeader={<RowHeader title="Row 5" />}
                             key="columns-5"
                             withScroll
                             id="columns-5"
@@ -68,6 +74,7 @@ class App extends Component {
                             {this.getWidgetsForRow('5')(10)}
                         </Columns>
                         <Columns
+                            rowHeader={<RowHeader title="Row 6" />}
                             key="columns-6"
                             withScroll
                             id="columns-6"

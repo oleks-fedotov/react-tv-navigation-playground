@@ -90,13 +90,15 @@ class Columns extends Component {
             navigationDown: parentNavigationDown,
             navigationLeft: parentNavigationLeft,
             navigationRight: parentNavigationRight,
-            focusedIndex
+            focusedIndex,
+            rowHeader
         } = this.props;
 
         const { refs, offsetLeft } = this.state;
 
         return (
             <div className={classnames('columns-container', withScroll && 'with-scroll', className)}>
+                {rowHeader}
                 <div
                     ref={this.scrollableContainer}
                     style={withScroll ? this.getLeftOffsetStyleForScroll(offsetLeft) : {}}
@@ -139,7 +141,8 @@ Columns.propTypes = {
     focusedIndex: PropTypes.number,
     defaultFocusedIndex: PropTypes.number,
     isFocused: PropTypes.bool,
-    focusElement: PropTypes.func
+    focusElement: PropTypes.func,
+    rowHeader: PropTypes.node
 };
 
 Columns.defaultProps = {
@@ -153,7 +156,8 @@ Columns.defaultProps = {
     focusedIndex: -1,
     defaultFocusedIndex: 0,
     isFocused: false,
-    focusElement: () => { }
+    focusElement: () => { },
+    rowHeader: null
 };
 
 export default Columns;

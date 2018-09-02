@@ -16,7 +16,8 @@ const reducer = (state = defaultState, action) => {
             return curFocused && curFocused.props.navigationDown
                 ? {
                     focusedComponent: curFocused.props.navigationDown.current,
-                    focusedId: curFocused.props.navigationDown.current.props.id
+                    focusedId: curFocused.props.navigationDown.current.props.id,
+                    pointerActive: false
                 }
                 : state;
         }
@@ -25,7 +26,8 @@ const reducer = (state = defaultState, action) => {
             return curFocused && curFocused.props.navigationUp
                 ? {
                     focusedComponent: curFocused.props.navigationUp.current,
-                    focusedId: curFocused.props.navigationUp.current.props.id
+                    focusedId: curFocused.props.navigationUp.current.props.id,
+                    pointerActive: false
                 }
                 : state;
         }
@@ -34,7 +36,8 @@ const reducer = (state = defaultState, action) => {
             return curFocused && curFocused.props.navigationLeft
                 ? {
                     focusedComponent: curFocused.props.navigationLeft.current,
-                    focusedId: curFocused.props.navigationLeft.current.props.id
+                    focusedId: curFocused.props.navigationLeft.current.props.id,
+                    pointerActive: false
                 }
                 : state;
         }
@@ -43,7 +46,8 @@ const reducer = (state = defaultState, action) => {
             return curFocused && curFocused.props.navigationRight
                 ? {
                     focusedComponent: curFocused.props.navigationRight.current,
-                    focusedId: curFocused.props.navigationRight.current.props.id
+                    focusedId: curFocused.props.navigationRight.current.props.id,
+                    pointerActive: false
                 }
                 : state;
         }

@@ -2,9 +2,22 @@ import { connect } from 'react-redux';
 import { ACTIVATE_POINTER, DEACTIVATE_POINTER } from './../../../state/actions';
 import WithPointer from './WithPointerComponent';
 
-const mapDispatchToProps = dispatch => ({
-    onMouseEnter: () => dispatch({ type: ACTIVATE_POINTER }),
-    onMouseLeave: () => dispatch({ type: DEACTIVATE_POINTER })
+const mapStateToProps = ({ pointer }, ownProps) => ({
+    isActive:
+        pointer.activeComponentId === ownProps.id
+        && pointer.isActive
 });
 
-export default connect(null, mapDispatchToProps)(WithPointer);
+const mapDispatchToProps = dispatch => ({
+    onMouseEnter: (componentId) => dispatch({ type: ACTIVATE_POINTER, componentId }),
+    onMouseLeave: (componentId) => dispatch({ type: DEACTIVATE_POINTER, componentId })
+});
+
+const mergeProps = (stateProps, dispatchProps, ownProps) => ({
+    ...ownProps,
+    ...stateProps,
+    onMouseEnter: () => dispatchProps.onMouseEnter(ownProps.id),
+    onMouseLeave: () => dispatchProps.onMouseLeave(ownProps.id)
+});
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(WithPointer);

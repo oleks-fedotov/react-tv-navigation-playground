@@ -19,15 +19,9 @@ class App extends Component {
         Array(numberOfWidgets)
             .fill(0)
             .map((_, index) => (
-                ({ isFocused }) =>
-                    <WithPointer>
-                        <Widget
-                            key={`widget-${rowKey}-${index}`}
-                            isFocused={isFocused}
-                        >
-                            {rowKey}-{index + 1}
-                        </Widget>
-                    </WithPointer>
+                <Widget>
+                    {rowKey}-{index + 1}
+                </Widget>
             ))
     );
 

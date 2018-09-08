@@ -16,7 +16,7 @@
     border: darkgray 2px solid;
 }
 
-.widget:hover {
+.mouse-active .widget:hover {
     background-color: lightskyblue;
     border: 2px solid yellow;
 }

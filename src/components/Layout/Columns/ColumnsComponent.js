@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import classnames from 'classnames';
 import FocusableComponent from '../FocusableComponent';
+import WithPointer from '../WithPointer';
 import './style.css';
 
 class Columns extends Component {
@@ -16,6 +17,9 @@ class Columns extends Component {
             offsetLeft: 0
         };
         this.scrollableContainer = React.createRef();
+        this.renderRow = props.withPointerSupport
+            ? elements => <WithPointer id={`${props.id}-pointer-container`}>{elements}</WithPointer>
+            : elements => elements;
     }
 
     shouldComponentUpdate(nextProps) {
@@ -103,27 +107,29 @@ class Columns extends Component {
                     ref={this.scrollableContainer}
                     style={withScroll ? this.getLeftOffsetStyleForScroll(offsetLeft) : {}}
                 >
-                    {children.map((child, index) => (
-                        <FocusableComponent
-                            key={`${id}-${index}`}
-                            id={`${id}-${index}`}
-                            className={elementClassName}
-                            ref={refs[index]}
-                            hasDefaultFocus={focusedIndex === index}
-                            navigationUp={parentNavigationUp}
-                            navigationDown={parentNavigationDown}
-                            navigationLeft={index > 0
-                                ? refs[index - 1]
-                                : parentNavigationLeft
-                            }
-                            navigationRight={index < this.state.amountOfChildren - 1
-                                ? refs[index + 1]
-                                : parentNavigationRight
-                            }
-                        >
-                            {child}
-                        </FocusableComponent>
-                    ))}
+                    {this.renderRow(
+                        children.map((child, index) => (
+                            <FocusableComponent
+                                key={`${id}-${index}`}
+                                id={`${id}-${index}`}
+                                className={elementClassName}
+                                ref={refs[index]}
+                                hasDefaultFocus={focusedIndex === index}
+                                navigationUp={parentNavigationUp}
+                                navigationDown={parentNavigationDown}
+                                navigationLeft={index > 0
+                                    ? refs[index - 1]
+                                    : parentNavigationLeft
+                                }
+                                navigationRight={index < this.state.amountOfChildren - 1
+                                    ? refs[index + 1]
+                                    : parentNavigationRight
+                                }
+                            >
+                                {child}
+                            </FocusableComponent>
+                        ))
+                    )}
                 </div>
             </div>);
     }

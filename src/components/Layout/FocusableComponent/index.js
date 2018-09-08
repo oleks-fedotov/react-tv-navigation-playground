@@ -2,8 +2,10 @@ import { connect } from 'react-redux';
 import { FOCUS_COMPONENT } from './../../../state/actions';
 import FocusableComponent from './FocusableComponent.js';
 
-const mapStateToProps = ({ navigation }, ownProps) => ({
-    isFocused: ownProps.id === navigation.focusedId
+const mapStateToProps = ({ navigation, pointer }, ownProps) => ({
+    isFocused:
+        !pointer.isActive
+        && ownProps.id === navigation.focusedId
 });
 
 const mapDispatchToProps = dispatch => ({

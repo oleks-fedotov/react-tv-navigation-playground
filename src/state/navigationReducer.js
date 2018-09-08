@@ -3,16 +3,10 @@ import {
     NAVIGATION_DOWN,
     NAVIGATION_UP,
     NAVIGATION_LEFT,
-    NAVIGATION_RIGHT,
-    ACTIVATE_POINTER,
-    DEACTIVATE_POINTER
+    NAVIGATION_RIGHT
 } from './actions';
 
-const defaultState = {
-    pointerActive: false
-};
-
-const reducer = (state = defaultState, action) => {
+const reducer = (state = {}, action) => {
     switch (action.type) {
         case FOCUS_COMPONENT:
             return {
@@ -25,7 +19,6 @@ const reducer = (state = defaultState, action) => {
                 ? {
                     focusedComponent: curFocused.props.navigationDown.current,
                     focusedId: curFocused.props.navigationDown.current.props.id,
-                    pointerActive: false
                 }
                 : state;
         }
@@ -35,7 +28,6 @@ const reducer = (state = defaultState, action) => {
                 ? {
                     focusedComponent: curFocused.props.navigationUp.current,
                     focusedId: curFocused.props.navigationUp.current.props.id,
-                    pointerActive: false
                 }
                 : state;
         }
@@ -45,7 +37,6 @@ const reducer = (state = defaultState, action) => {
                 ? {
                     focusedComponent: curFocused.props.navigationLeft.current,
                     focusedId: curFocused.props.navigationLeft.current.props.id,
-                    pointerActive: false
                 }
                 : state;
         }
@@ -55,25 +46,8 @@ const reducer = (state = defaultState, action) => {
                 ? {
                     focusedComponent: curFocused.props.navigationRight.current,
                     focusedId: curFocused.props.navigationRight.current.props.id,
-                    pointerActive: false
                 }
                 : state;
-        }
-        case ACTIVATE_POINTER: {
-            return state.pointerActive
-                ? state
-                : {
-                    ...state,
-                    focusedId: undefined,
-                    pointerActive: true
-                };
-        }
-        case DEACTIVATE_POINTER: {
-            return {
-                ...state,
-                focusedId: state.focusedComponent.props.id,
-                pointerActive: false
-            };
         }
         default:
             return state;

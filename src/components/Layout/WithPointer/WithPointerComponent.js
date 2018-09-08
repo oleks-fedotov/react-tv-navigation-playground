@@ -1,18 +1,7 @@
-// it should wrap each element, where pointer should be supported (e.g. each Widget)
-// handle onMouseEnter / onMouseLeave / onMouseMove events
-// dispatch events to react store
-// handle mouse activation / deactivation in navigation reducer -> remove / assign focused id
-
-
-// approach 1
-// dispatch events directly to the redux store
-
-// approach 2 (more optimizations possible)
-// use react-bus and handle events inside middleware, afterwards dispatch them to the redux store if needed
-
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import throttle from 'lodash/throttle';
+import classnames from 'classnames';
 
 class WithPointer extends PureComponent {
     constructor(props) {
@@ -22,14 +11,14 @@ class WithPointer extends PureComponent {
     }
 
     render() {
-        const { onMouseEnter, onMouseLeave, className } = this.props;
+        const { onMouseEnter, onMouseLeave, className, isActive } = this.props;
         return (
             <div
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
                 onMouseMove={this.throttledMouseEnter}
                 style={{ display: 'inline-block' }}
-                className={className}
+                className={classnames(className, { 'mouse-active': isActive })}
             >
                 {this.props.children}
             </div>
@@ -40,7 +29,14 @@ class WithPointer extends PureComponent {
 WithPointer.propTypes = {
     children: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf(PropTypes.node)]),
     onMouseEnter: PropTypes.func.isRequired,
-    onMouseLeave: PropTypes.func.isRequired
+    onMouseLeave: PropTypes.func.isRequired,
+    isActive: PropTypes.bool,
+    id: PropTypes.string
+};
+
+WithPointer.defaultProps = {
+    isActive: false,
+    id: ''
 };
 
 export default WithPointer;

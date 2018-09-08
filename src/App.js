@@ -8,6 +8,7 @@ import Widget from './components/Content/Widget';
 import { Provider } from 'react-redux';
 import store from './state/index';
 import RowHeader from './components/Content/RowHeader';
+import WithPointer from './components/Layout/WithPointer';
 
 class App extends Component {
     componentWillMount() {
@@ -18,7 +19,9 @@ class App extends Component {
         Array(numberOfWidgets)
             .fill(0)
             .map((_, index) => (
-                <Widget key={`widget-${rowKey}-${index}`}>{rowKey}-{index + 1}</Widget>
+                <Widget>
+                    {rowKey}-{index + 1}
+                </Widget>
             ))
     );
 
@@ -31,6 +34,7 @@ class App extends Component {
                             rowHeader={<RowHeader title="Row 1" />}
                             key="columns-1"
                             withScroll
+                            withPointerSupport
                             id="columns-1"
                             focusedIndex={0}
                             elementClassName="row-item"
@@ -41,6 +45,7 @@ class App extends Component {
                             rowHeader={<RowHeader title="Row 2" />}
                             key="columns-2"
                             withScroll
+                            withPointerSupport
                             id="columns-2"
                             elementClassName="row-item"
                         >

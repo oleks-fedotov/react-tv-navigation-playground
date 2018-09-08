@@ -1,4 +1,11 @@
-import { FOCUS_COMPONENT, NAVIGATION_DOWN, NAVIGATION_UP, NAVIGATION_LEFT, NAVIGATION_RIGHT } from './actions';
+import {
+    FOCUS_COMPONENT,
+    NAVIGATION_DOWN,
+    NAVIGATION_UP,
+    NAVIGATION_LEFT,
+    NAVIGATION_RIGHT
+} from './actions';
+
 const reducer = (state = {}, action) => {
     switch (action.type) {
         case FOCUS_COMPONENT:
@@ -11,7 +18,7 @@ const reducer = (state = {}, action) => {
             return curFocused && curFocused.props.navigationDown
                 ? {
                     focusedComponent: curFocused.props.navigationDown.current,
-                    focusedId: curFocused.props.navigationDown.current.props.id
+                    focusedId: curFocused.props.navigationDown.current.props.id,
                 }
                 : state;
         }
@@ -20,7 +27,7 @@ const reducer = (state = {}, action) => {
             return curFocused && curFocused.props.navigationUp
                 ? {
                     focusedComponent: curFocused.props.navigationUp.current,
-                    focusedId: curFocused.props.navigationUp.current.props.id
+                    focusedId: curFocused.props.navigationUp.current.props.id,
                 }
                 : state;
         }
@@ -29,7 +36,7 @@ const reducer = (state = {}, action) => {
             return curFocused && curFocused.props.navigationLeft
                 ? {
                     focusedComponent: curFocused.props.navigationLeft.current,
-                    focusedId: curFocused.props.navigationLeft.current.props.id
+                    focusedId: curFocused.props.navigationLeft.current.props.id,
                 }
                 : state;
         }
@@ -38,7 +45,7 @@ const reducer = (state = {}, action) => {
             return curFocused && curFocused.props.navigationRight
                 ? {
                     focusedComponent: curFocused.props.navigationRight.current,
-                    focusedId: curFocused.props.navigationRight.current.props.id
+                    focusedId: curFocused.props.navigationRight.current.props.id,
                 }
                 : state;
         }

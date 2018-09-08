@@ -88,13 +88,14 @@ class Columns extends Component {
             id,
             className,
             withScroll,
+            withDefaultFocus,
             children,
             elementClassName,
+            defaultFocusedIndex,
             navigationUp: parentNavigationUp,
             navigationDown: parentNavigationDown,
             navigationLeft: parentNavigationLeft,
             navigationRight: parentNavigationRight,
-            focusedIndex,
             rowHeader
         } = this.props;
 
@@ -112,9 +113,10 @@ class Columns extends Component {
                             <FocusableComponent
                                 key={`${id}-${index}`}
                                 id={`${id}-${index}`}
+                                parentId={id}
                                 className={elementClassName}
                                 ref={refs[index]}
-                                hasDefaultFocus={focusedIndex === index}
+                                hasDefaultFocus={withDefaultFocus ? defaultFocusedIndex === index : false}
                                 navigationUp={parentNavigationUp}
                                 navigationDown={parentNavigationDown}
                                 navigationLeft={index > 0
@@ -139,7 +141,6 @@ Columns.propTypes = {
     id: PropTypes.string.isRequired,
     className: PropTypes.string,
     children: PropTypes.arrayOf(PropTypes.element),
-    withScroll: PropTypes.bool,
     rowHeader: PropTypes.node,
 
     navigationUp: PropTypes.node,
@@ -147,7 +148,10 @@ Columns.propTypes = {
     navigationLeft: PropTypes.node,
     navigationRight: PropTypes.node,
 
-    focusedIndex: PropTypes.number,
+    withScroll: PropTypes.bool,
+    withDefaultFocus: PropTypes.bool,
+    withPointerSupport: PropTypes.bool,
+
     defaultFocusedIndex: PropTypes.number,
     isFocused: PropTypes.bool,
 
@@ -158,12 +162,13 @@ Columns.defaultProps = {
     className: '',
     children: [],
     withScroll: false,
+    withDefaultFocus: false,
+    withPointerSupport: false,
     rowHeader: null,
     navigationUp: null,
     navigationDown: null,
     navigationLeft: null,
     navigationRight: null,
-    focusedIndex: -1,
     defaultFocusedIndex: 0,
     isFocused: false,
     focusElement: () => { }

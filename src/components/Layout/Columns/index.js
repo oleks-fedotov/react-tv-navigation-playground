@@ -2,8 +2,10 @@ import { connect } from 'react-redux';
 import { FOCUS_COMPONENT } from './../../../state/actions';
 import Columns from './ColumnsComponent.js';
 
-const mapStateToProps = (state) => ({
-    focusedComponent: state.navigation.focusedComponent
+const mapStateToProps = ({ navigation }, ownProps) => ({
+    focusedComponent: navigation.parentId === ownProps.id
+        ? navigation.focusedComponent
+        : null
 });
 
 const mapDispatchToProps = dispatch => ({

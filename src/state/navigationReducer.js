@@ -6,49 +6,40 @@ import {
     NAVIGATION_RIGHT
 } from './actions';
 
+const DIRECTIONS = Object.freeze({
+    [NAVIGATION_DOWN]: 'navigationDown',
+    [NAVIGATION_UP]: 'navigationUp',
+    [NAVIGATION_LEFT]: 'navigationLeft',
+    [NAVIGATION_RIGHT]: 'navigationRight'
+});
+
+const getNextNavigationState = (state, direction) => {
+    const newFocused = state.focusedComponent
+        && state.focusedComponent.props[DIRECTIONS[direction]];
+
+    return newFocused
+        ? {
+            ...state,
+            focusedComponent: newFocused.current,
+            focusedId: newFocused.current.props.id,
+            parentId: newFocused.current.props.parentId
+        }
+        : state;
+};
+
 const reducer = (state = {}, action) => {
     switch (action.type) {
         case FOCUS_COMPONENT:
             return {
                 focusedComponent: action.data,
-                focusedId: action.data.props.id
+                focusedId: action.data.props.id,
+                parentId: action.data.props.parentId
             }
-        case NAVIGATION_DOWN: {
-            const curFocused = state.focusedComponent;
-            return curFocused && curFocused.props.navigationDown
-                ? {
-                    focusedComponent: curFocused.props.navigationDown.current,
-                    focusedId: curFocused.props.navigationDown.current.props.id,
-                }
-                : state;
-        }
-        case NAVIGATION_UP: {
-            const curFocused = state.focusedComponent;
-            return curFocused && curFocused.props.navigationUp
-                ? {
-                    focusedComponent: curFocused.props.navigationUp.current,
-                    focusedId: curFocused.props.navigationUp.current.props.id,
-                }
-                : state;
-        }
-        case NAVIGATION_LEFT: {
-            const curFocused = state.focusedComponent;
-            return curFocused && curFocused.props.navigationLeft
-                ? {
-                    focusedComponent: curFocused.props.navigationLeft.current,
-                    focusedId: curFocused.props.navigationLeft.current.props.id,
-                }
-                : state;
-        }
-        case NAVIGATION_RIGHT: {
-            const curFocused = state.focusedComponent;
-            return curFocused && curFocused.props.navigationRight
-                ? {
-                    focusedComponent: curFocused.props.navigationRight.current,
-                    focusedId: curFocused.props.navigationRight.current.props.id,
-                }
-                : state;
-        }
+        case NAVIGATION_DOWN:
+        case NAVIGATION_UP:
+        case NAVIGATION_LEFT:
+        case NAVIGATION_RIGHT:
+            return getNextNavigationState(state, action.type);
         default:
             return state;
     }

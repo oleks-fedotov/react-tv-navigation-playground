@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import './style.css';
 
 class LazyColumns extends Component {
     constructor(props) {

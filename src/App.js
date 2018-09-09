@@ -1,13 +1,15 @@
-import { APPLICATION_START } from './state/actions';
 import React, { Component } from 'react';
+import { APPLICATION_START } from './state/actions';
 import './App.css';
 import Rows from './components/Layout/Rows';
 import Columns from './components/Layout/Columns';
 import Scroll from './components/Layout/Scroll';
 import Widget from './components/Content/Widget';
+import LazyColumns from './components/Layout/LazyColumns/LazyColumnsComponent';
+import RowHeader from './components/Content/RowHeader';
 import { Provider } from 'react-redux';
 import store from './state/index';
-import RowHeader from './components/Content/RowHeader';
+import uniqueId from 'lodash/uniqueId';
 
 class App extends Component {
     componentWillMount() {
@@ -18,7 +20,7 @@ class App extends Component {
         Array(numberOfColumns)
             .fill(0)
             .map((_, index) => (
-                <Widget>
+                <Widget id={uniqueId()}>
                     {widgetTitle}-{index + 1}
                 </Widget>
             ))
@@ -28,16 +30,22 @@ class App extends Component {
         Array(numberOfRows)
             .fill(0)
             .map((_, index) => (
-                <Columns
-                    withScroll
-                    withPointerSupport
-                    id={`${rowKeyPrefix}-${index}`}
-                    key={`${rowKeyPrefix}-${index}`}
-                    rowHeader={<RowHeader title={`Row ${index + 1}`} />}
-                    withDefaultFocus={index === 0}
+                <LazyColumns
+                    NavigationComponentRender={({ children }) => (
+                        <Columns
+                            withScroll
+                            withPointerSupport
+                            id={`${rowKeyPrefix}-${index}`}
+                            key={`${rowKeyPrefix}-${index}`}
+                            rowHeader={<RowHeader title={`Row ${index + 1}`} />}
+                            withDefaultFocus={index === 0}
+                        >
+                            {children}
+                        </Columns>
+                    )}
                 >
                     {this.getWidgetsForRow(index + 1)(numberOfElementsInRow)}
-                </Columns>
+                </LazyColumns>
             ))
     );
 
@@ -46,7 +54,7 @@ class App extends Component {
             <Provider store={store}>
                 <Scroll>
                     <Rows id="rows-navigation" elementClassName="row">
-                        {this.getRows('columns')(10)(20)}
+                        {this.getRows('columns')(1)(20)}
                     </Rows>
                 </Scroll>
             </Provider>

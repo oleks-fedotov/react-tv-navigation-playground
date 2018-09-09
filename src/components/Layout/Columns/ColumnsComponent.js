@@ -13,7 +13,9 @@ class Columns extends Component {
         const amountOfChildren = props.children.length;
         this.state = {
             amountOfChildren,
-            refs: Array(amountOfChildren).fill().map(() => React.createRef()),
+            refs: Array(amountOfChildren)
+                .fill()
+                .map(() => React.createRef()),
             offsetLeft: 0
         };
         this.scrollableContainer = React.createRef();
@@ -29,7 +31,10 @@ class Columns extends Component {
         if (this.props.withScroll && focusInsideWasChanged) {
             this.saveFocusedIndex(nextProps.focusedComponent);
         }
-        return focusInsideWasChanged || componentGetFocused;
+        const childrenChanged = this.state.amountOfChildren !== nextProps.children.length;
+        return focusInsideWasChanged
+            || componentGetFocused
+            || childrenChanged;
     }
 
     componentDidUpdate(prevProps) {
@@ -47,17 +52,33 @@ class Columns extends Component {
         }
     }
 
-    static getDerivedStateFromProps({ focusedComponent, withScroll }, { offsetLeft, containerOffsetLeft }) {
+    static getDerivedStateFromProps(
+        { focusedComponent, withScroll, children },
+        { offsetLeft, containerOffsetLeft, refs }) {
+        let offsetNewState = null;
+        let childrenRefsNewState = null;
+
         if (focusedComponent && withScroll) {
             const element = ReactDOM.findDOMNode(focusedComponent)
             const focusedRect = element.getBoundingClientRect();
             const newOffsetLeft = offsetLeft + focusedRect.left - containerOffsetLeft;
-            return {
+            offsetNewState = {
                 offsetLeft: newOffsetLeft
             };
-        } else {
-            return null;
         }
+        if (children.length !== refs.length) {
+            const amountOfChildren = children.length;
+            childrenRefsNewState = {
+                amountOfChildren,
+                refs: Array(amountOfChildren)
+                    .fill()
+                    .map(() => React.createRef())
+            };
+        }
+
+        return offsetNewState || childrenRefsNewState
+            ? { ...offsetNewState, ...childrenRefsNewState }
+            : null;
     }
 
     componentDidGetFocused(props, prevProps) {
@@ -111,8 +132,8 @@ class Columns extends Component {
                     {this.renderRow(
                         children.map((child, index) => (
                             <FocusableComponent
-                                key={`${id}-${index}`}
-                                id={`${id}-${index}`}
+                                key={`${id}-${child.props.id}`}
+                                id={`${id}-${child.props.id}`}
                                 parentId={id}
                                 className={elementClassName}
                                 ref={refs[index]}

@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import FocusableComponent from '../FocusableComponent';
+
 class Rows extends PureComponent {
     constructor(props) {
         super(props);
@@ -8,17 +9,17 @@ class Rows extends PureComponent {
         const amountOfChildren = props.children.length;
         this.state = {
             amountOfChildren,
-            refs: Array(amountOfChildren).fill().map(() => React.createRef())
+            refs: Array(amountOfChildren).fill().map(() => React.createRef()),
         };
     }
 
     componentDidUpdate(prevProps) {
-        if (this.componentDidGetFocused(this.props, prevProps)) {
+        if (Rows.componentDidGetFocused(this.props, prevProps)) {
             this.props.focusElement(this.state.refs[this.props.defaultFocusedIndex].current);
         }
     }
 
-    componentDidGetFocused(props, prevProps) {
+    static componentDidGetFocused(props, prevProps) {
         return props.isFocused && props.isFocused !== prevProps.isFocused;
     }
 
@@ -32,7 +33,7 @@ class Rows extends PureComponent {
             navigationDown: parentNavigationDown,
             navigationLeft: parentNavigationLeft,
             navigationRight: parentNavigationRight,
-            focusedIndex
+            focusedIndex,
         } = this.props;
 
         const { refs } = this.state;
@@ -59,7 +60,7 @@ class Rows extends PureComponent {
                     {child}
                 </FocusableComponent>
             ))}
-        </div>
+        </div>;
     }
 }
 
@@ -75,7 +76,7 @@ Rows.propTypes = {
     focusedIndex: PropTypes.number,
     defaultFocusedIndex: PropTypes.number,
     isFocused: PropTypes.bool,
-    focusElement: PropTypes.func
+    focusElement: PropTypes.func,
 };
 
 Rows.defaultProps = {
@@ -89,8 +90,7 @@ Rows.defaultProps = {
     focusedIndex: -1,
     defaultFocusedIndex: 0,
     isFocused: false,
-    focusElement: () => { }
+    focusElement: () => { },
 };
 
 export default Rows;
-

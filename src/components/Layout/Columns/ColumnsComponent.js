@@ -16,7 +16,7 @@ class Columns extends Component {
             refs: Array(amountOfChildren)
                 .fill()
                 .map(() => React.createRef()),
-            offsetLeft: 0
+            offsetLeft: 0,
         };
         this.scrollableContainer = React.createRef();
         this.renderRow = props.withPointerSupport
@@ -25,11 +25,13 @@ class Columns extends Component {
     }
 
     shouldComponentUpdate(nextProps) {
-        const focusInsideWasChanged = this.state.refs
-            .find((childRef) => nextProps.focusedComponent === childRef.current);
+        const focusedIndex = this.state.refs
+            .findIndex(childRef => nextProps.focusedComponent === childRef.current);
+        const focusInsideWasChanged = focusedIndex !== -1 && focusedIndex !== this.getLastFocusedIndex();
         const componentGetFocused = this.componentDidGetFocused(nextProps, this.props);
         if (this.props.withScroll && focusInsideWasChanged) {
             this.saveFocusedIndex(nextProps.focusedComponent);
+            this.props.onFocusedIndexUpdated(this.focusedIndex);
         }
         const childrenChanged = this.state.amountOfChildren !== nextProps.children.length;
         return focusInsideWasChanged
@@ -47,23 +49,24 @@ class Columns extends Component {
     componentDidMount() {
         if (this.scrollableContainer.current) {
             this.setState({
-                containerOffsetLeft: this.scrollableContainer.current.offsetLeft
+                containerOffsetLeft: this.scrollableContainer.current.offsetLeft,
             });
         }
     }
 
     static getDerivedStateFromProps(
         { focusedComponent, withScroll, children },
-        { offsetLeft, containerOffsetLeft, refs }) {
+        { offsetLeft, containerOffsetLeft, refs },
+    ) {
         let offsetNewState = null;
         let childrenRefsNewState = null;
 
         if (focusedComponent && withScroll) {
-            const element = ReactDOM.findDOMNode(focusedComponent)
+            const element = ReactDOM.findDOMNode(focusedComponent);
             const focusedRect = element.getBoundingClientRect();
             const newOffsetLeft = offsetLeft + focusedRect.left - containerOffsetLeft;
             offsetNewState = {
-                offsetLeft: newOffsetLeft
+                offsetLeft: newOffsetLeft,
             };
         }
         if (children.length !== refs.length) {
@@ -72,7 +75,7 @@ class Columns extends Component {
                 amountOfChildren,
                 refs: Array(amountOfChildren)
                     .fill()
-                    .map(() => React.createRef())
+                    .map(() => React.createRef()),
             };
         }
 
@@ -100,7 +103,7 @@ class Columns extends Component {
             MozTransform: offsetStyle,
             MsTransform: offsetStyle,
             OTransform: offsetStyle,
-            transform: offsetStyle
+            transform: offsetStyle,
         };
     }
 
@@ -117,7 +120,7 @@ class Columns extends Component {
             navigationDown: parentNavigationDown,
             navigationLeft: parentNavigationLeft,
             navigationRight: parentNavigationRight,
-            rowHeader
+            rowHeader,
         } = this.props;
 
         const { refs, offsetLeft } = this.state;
@@ -151,7 +154,7 @@ class Columns extends Component {
                             >
                                 {child}
                             </FocusableComponent>
-                        ))
+                        )),
                     )}
                 </div>
             </div>);
@@ -163,6 +166,7 @@ Columns.propTypes = {
     className: PropTypes.string,
     children: PropTypes.arrayOf(PropTypes.element),
     rowHeader: PropTypes.node,
+    focusedComponent: PropTypes.element,
 
     navigationUp: PropTypes.node,
     navigationDown: PropTypes.node,
@@ -176,7 +180,9 @@ Columns.propTypes = {
     defaultFocusedIndex: PropTypes.number,
     isFocused: PropTypes.bool,
 
-    focusElement: PropTypes.func
+    focusElement: PropTypes.func,
+
+    onFocusedIndexUpdated: PropTypes.func,
 };
 
 Columns.defaultProps = {
@@ -192,7 +198,8 @@ Columns.defaultProps = {
     navigationRight: null,
     defaultFocusedIndex: 0,
     isFocused: false,
-    focusElement: () => { }
+    focusElement: () => { },
+    onFocusedIndexUpdated: () => { },
 };
 
 export default Columns;

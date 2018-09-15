@@ -1,51 +1,53 @@
 import React, { Component } from 'react';
-import { APPLICATION_START } from './state/actions';
-import './App.css';
-import Rows from './components/Layout/Rows';
-import Columns from './components/Layout/Columns';
-import Scroll from './components/Layout/Scroll';
-import Widget from './components/Content/Widget';
-import LazyColumns from './components/Layout/LazyColumns/LazyColumnsComponent';
-import RowHeader from './components/Content/RowHeader';
 import { Provider } from 'react-redux';
+
+import { APPLICATION_START } from './state/actions';
+import { getDataForRange, generateData } from './data/dataProvider';
+import Columns from './components/Layout/Columns';
+import LazyCollectionRenderer from './components/Layout/LazyColumns/LazyColumnsComponent';
+import RowHeader from './components/Content/RowHeader';
+import Rows from './components/Layout/Rows';
+import Scroll from './components/Layout/Scroll';
 import store from './state/index';
-import uniqueId from 'lodash/uniqueId';
+import Widget from './components/Content/Widget';
+
+import './App.css';
+
+const totalAmountOfElementsInRow = 20;
+generateData(totalAmountOfElementsInRow);
 
 class App extends Component {
-    componentWillMount() {
+    // eslint-disable-next-line
+    componentDidMount() {
         store.dispatch({ type: APPLICATION_START });
     }
 
-    getWidgetsForRow = (widgetTitle) => (numberOfColumns) => (
-        Array(numberOfColumns)
-            .fill(0)
-            .map((_, index) => (
-                <Widget id={uniqueId()}>
-                    {widgetTitle}-{index + 1}
-                </Widget>
-            ))
-    );
-
-    getRows = (rowKeyPrefix) => (numberOfRows) => (numberOfElementsInRow) => (
+    getRows = rowKeyPrefix => numberOfRows => numberOfElementsInRow => (
         Array(numberOfRows)
             .fill(0)
             .map((_, index) => (
-                <LazyColumns
-                    NavigationComponentRender={({ children }) => (
+                <LazyCollectionRenderer
+                    key={index}
+                    NavigationComponentRender={React.forwardRef(({ children, onFocusedIndexUpdated }, ref) => (
                         <Columns
+                            ref={ref}
                             withScroll
                             withPointerSupport
                             id={`${rowKeyPrefix}-${index}`}
                             key={`${rowKeyPrefix}-${index}`}
                             rowHeader={<RowHeader title={`Row ${index + 1}`} />}
                             withDefaultFocus={index === 0}
+                            onFocusedIndexUpdated={onFocusedIndexUpdated}
                         >
                             {children}
                         </Columns>
-                    )}
-                >
-                    {this.getWidgetsForRow(index + 1)(numberOfElementsInRow)}
-                </LazyColumns>
+                    ))}
+                    elementRenderer={({ id, title, isFocused }) => <Widget id={id} isFocused={isFocused}>{title}</Widget>}
+                    getElementsDataForRange={getDataForRange}
+                    totalAmount={numberOfElementsInRow}
+                    initialRenderAmount={5}
+                    initiFocusedIndex={0}
+                />
             ))
     );
 
@@ -54,7 +56,7 @@ class App extends Component {
             <Provider store={store}>
                 <Scroll>
                     <Rows id="rows-navigation" elementClassName="row">
-                        {this.getRows('columns')(1)(20)}
+                        {this.getRows('columns')(1)(totalAmountOfElementsInRow)}
                     </Rows>
                 </Scroll>
             </Provider>

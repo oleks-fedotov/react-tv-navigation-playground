@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import FocusableComponent from '../FocusableComponent';
+import { componentDidGetFocused } from '../../../utils/focusUtils';
 
 class Rows extends PureComponent {
     constructor(props) {
@@ -14,13 +15,9 @@ class Rows extends PureComponent {
     }
 
     componentDidUpdate(prevProps) {
-        if (Rows.componentDidGetFocused(this.props, prevProps)) {
+        if (componentDidGetFocused(this.props, prevProps)) {
             this.props.focusElement(this.state.refs[this.props.defaultFocusedIndex].current);
         }
-    }
-
-    static componentDidGetFocused(props, prevProps) {
-        return props.isFocused && props.isFocused !== prevProps.isFocused;
     }
 
     render() {

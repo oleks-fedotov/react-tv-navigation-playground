@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import classnames from 'classnames';
+import { componentDidGetFocused } from '../../../utils/focusUtils';
 import FocusableComponent from '../FocusableComponent';
 import WithPointer from '../WithPointer';
 import './style.css';
@@ -27,8 +28,9 @@ class Columns extends Component {
     shouldComponentUpdate(nextProps) {
         const focusedIndex = this.state.refs
             .findIndex(childRef => nextProps.focusedComponent === childRef.current);
-        const focusInsideWasChanged = focusedIndex !== -1 && focusedIndex !== this.getLastFocusedIndex();
-        const componentGetFocused = this.componentDidGetFocused(nextProps, this.props);
+        const focusInsideWasChanged = focusedIndex !== -1
+            && focusedIndex !== this.getLastFocusedIndex();
+        const componentGetFocused = componentDidGetFocused(nextProps, this.props);
         if (this.props.withScroll && focusInsideWasChanged) {
             this.saveFocusedIndex(nextProps.focusedComponent);
             this.props.onFocusedIndexUpdated(this.focusedIndex);
@@ -40,7 +42,7 @@ class Columns extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.componentDidGetFocused(this.props, prevProps)) {
+        if (componentDidGetFocused(this.props, prevProps)) {
             const indexToFocus = this.getLastFocusedIndex() || this.props.defaultFocusedIndex;
             this.props.focusElement(this.state.refs[indexToFocus].current);
         }
@@ -82,10 +84,6 @@ class Columns extends Component {
         return offsetNewState || childrenRefsNewState
             ? { ...offsetNewState, ...childrenRefsNewState }
             : null;
-    }
-
-    componentDidGetFocused(props, prevProps) {
-        return props.isFocused && props.isFocused !== prevProps.isFocused;
     }
 
     saveFocusedIndex(focusedComponent) {
@@ -166,7 +164,7 @@ Columns.propTypes = {
     className: PropTypes.string,
     children: PropTypes.arrayOf(PropTypes.element),
     rowHeader: PropTypes.node,
-    focusedComponent: PropTypes.element,
+    focusedComponent: PropTypes.node,
 
     navigationUp: PropTypes.node,
     navigationDown: PropTypes.node,
@@ -192,6 +190,7 @@ Columns.defaultProps = {
     withDefaultFocus: false,
     withPointerSupport: false,
     rowHeader: null,
+    focusedComponent: null,
     navigationUp: null,
     navigationDown: null,
     navigationLeft: null,

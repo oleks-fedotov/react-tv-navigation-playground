@@ -1,5 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import {
+    calculateRenderedRange,
+    getIncreaseRangeOnLeft,
+    getIncreaseRangeOnRight,
+    isRangeDifferent,
+} from '../../../utils/rangeUtils';
 
 class LazyCollectionRenderer extends Component {
     constructor(props) {
@@ -14,7 +20,7 @@ class LazyCollectionRenderer extends Component {
         this.focusedIndex = initialFocusedIndex;
         this.childRef = React.createRef();
 
-        this.state = LazyCollectionRenderer.calculateRenderedRange(
+        this.state = calculateRenderedRange(
             initialFocusedIndex,
             totalAmount,
             minVisibleAmountOnLeft,
@@ -28,46 +34,6 @@ class LazyCollectionRenderer extends Component {
             renderedRangeEndIndex,
         } = this.state;
         this.renderElementsForRange(renderedRangeStartIndex, renderedRangeEndIndex);
-    }
-
-    componentDidUpdate(prevProps) {
-        if (LazyCollectionRenderer.componentDidGetFocused(this.props, prevProps)) {
-            this.props.focusElement(this.childRef.current);
-        }
-    }
-
-    static componentDidGetFocused(props, prevProps) {
-        return props.isFocused && props.isFocused !== prevProps.isFocused;
-    }
-
-    static calculateRenderedRange(currentIndex, totalAmount, minLeftOffsetAmount, minRightOffsetAmount) {
-        return {
-            renderedRangeStartIndex: Math.max(currentIndex - minLeftOffsetAmount, 0),
-            renderedRangeEndIndex: Math.min(currentIndex + minRightOffsetAmount, totalAmount - 1),
-        };
-    }
-
-    static getIncreaseRangeOnRight(
-        curStartRangeIndex,
-        curEndRangeIndex,
-        rangeExtender,
-        totalAmount,
-    ) {
-        return {
-            renderedRangeStartIndex: curStartRangeIndex,
-            renderedRangeEndIndex: Math.min(curEndRangeIndex + rangeExtender, totalAmount - 1),
-        };
-    }
-
-    static getIncreaseRangeOnLeft(
-        curStartRangeIndex,
-        curEndRangeIndex,
-        rangeExtender,
-    ) {
-        return {
-            renderedRangeStartIndex: Math.max(curStartRangeIndex - rangeExtender, 0),
-            renderedRangeEndIndex: curEndRangeIndex,
-        };
     }
 
     renderElementsForRange(renderedRangeStartIndex, renderedRangeEndIndex) {
@@ -110,53 +76,70 @@ class LazyCollectionRenderer extends Component {
                 renderedRangeStartIndex: newRenderedRangeStartIndex,
                 renderedRangeEndIndex: newRenderedRangeEndIndex,
             } = shouldRenderMoreOnLeft
-                ? LazyCollectionRenderer.getIncreaseRangeOnLeft(
+                ? getIncreaseRangeOnLeft(
                     renderedRangeStartIndex,
                     renderedRangeEndIndex,
                     minVisibleAmountOnLeft,
                 )
-                : LazyCollectionRenderer.getIncreaseRangeOnRight(
+                : getIncreaseRangeOnRight(
                     renderedRangeStartIndex,
                     renderedRangeEndIndex,
                     minVisibleAmountOnRight,
                     totalAmount,
                 );
-
-            this.renderElementsForRange(
-                newRenderedRangeStartIndex,
-                newRenderedRangeEndIndex,
+            const shouldRerenderElements = isRangeDifferent(
+                newRenderedRangeStartIndex, newRenderedRangeEndIndex,
+                renderedRangeStartIndex, renderedRangeEndIndex,
             );
+            if (shouldRerenderElements) {
+                this.renderElementsForRange(
+                    newRenderedRangeStartIndex,
+                    newRenderedRangeEndIndex,
+                );
+            }
         }
     }
 
     render() {
         const {
-            NavigationComponentRender,
-            elementRenderer: ElementRenderer,
+            CollectionComponentRender,
+            ElementRender,
+            navigationUp,
+            navigationDown,
+            navigationRight,
+            navigationLeft,
+            isFocused,
         } = this.props;
 
         const { dataObjects } = this.state;
 
         return !dataObjects || !dataObjects.length === 0
             ? <div>Loading....</div>
-            : <NavigationComponentRender
+            : <CollectionComponentRender
                 ref={this.childRef}
                 onFocusedIndexUpdated={newIndex => this.fetchDataForFocusedIndex(newIndex)}
+                navigationDown={navigationDown}
+                navigationUp={navigationUp}
+                navigationLeft={navigationLeft}
+                navigationRight={navigationRight}
+                isFocused={isFocused}
             >
-                {dataObjects.map(dataObj => <ElementRenderer {...dataObj} key={dataObj.key}/>)}
-            </NavigationComponentRender>;
+                {dataObjects.map(dataObj => (
+                    <ElementRender
+                        key={dataObj.key}
+                        {...dataObj}
+                    />
+                ))}
+            </CollectionComponentRender>;
     }
 }
 
 LazyCollectionRenderer.propTypes = {
-    id: PropTypes.string.isRequired,
-    NavigationComponentRender: PropTypes.element.isRequired,
+    CollectionComponentRender: PropTypes.node.isRequired,
     getElementsDataForRange: PropTypes.func.isRequired,
-    elementRenderer: PropTypes.func.isRequired,
-    focusElement: PropTypes.func.isRequired,
+    ElementRender: PropTypes.func.isRequired,
 
     className: PropTypes.string,
-    children: PropTypes.arrayOf(PropTypes.element),
 
     initialRenderAmount: PropTypes.number,
     initialFocusedIndex: PropTypes.number,
@@ -164,11 +147,15 @@ LazyCollectionRenderer.propTypes = {
     minVisibleAmountOnLeft: PropTypes.number,
     minVisibleAmountOnRight: PropTypes.number,
     totalAmount: PropTypes.number,
+
+    navigationUp: PropTypes.node,
+    navigationDown: PropTypes.node,
+    navigationLeft: PropTypes.node,
+    navigationRight: PropTypes.node,
 };
 
 LazyCollectionRenderer.defaultProps = {
     className: '',
-    children: [],
     initialRenderAmount: 5,
     initialFocusedIndex: 0,
     minVisibleAmountOnLeft: 5,

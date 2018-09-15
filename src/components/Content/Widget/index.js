@@ -22,7 +22,7 @@ class Widget extends Component {
 Widget.propTypes = {
     isFocused: PropTypes.bool,
     className: PropTypes.string,
-    children: PropTypes.Element,
+    children: PropTypes.node,
 };
 
 Widget.defaultProps = {

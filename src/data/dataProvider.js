@@ -1,14 +1,12 @@
 import range from 'lodash/range';
 import uniqueId from 'lodash/uniqueId';
 
-let data = [];
-
-export const generateData = (datasetSize) => {
-    data = range(datasetSize)
+export const getDataSource = (datasetSize) => {
+    const data = range(datasetSize + 1)
         .map(elementNumber => ({
             id: uniqueId(),
-            title: elementNumber,
+            title: elementNumber + 1,
         }));
-};
 
-export const getDataForRange = (rangeStart, rangeEnd) => data.slice(rangeStart, rangeEnd);
+    return (rangeStart, rangeEnd) => data.slice(rangeStart, rangeEnd);
+};

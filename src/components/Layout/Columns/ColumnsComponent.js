@@ -51,7 +51,7 @@ class Columns extends Component {
         if (focusedComponent && withScroll) {
             const element = ReactDOM.findDOMNode(focusedComponent)
             const focusedRect = element.getBoundingClientRect();
-            const newOffsetLeft = offsetLeft + focusedRect.left - containerOffsetLeft;
+            const newOffsetLeft = Math.abs(offsetLeft + focusedRect.left - containerOffsetLeft);
             return {
                 offsetLeft: newOffsetLeft
             };

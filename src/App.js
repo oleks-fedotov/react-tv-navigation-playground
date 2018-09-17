@@ -13,6 +13,7 @@ import Widget from './components/Content/Widget';
 
 import './App.css';
 
+const totalAmountOfRows = 20;
 const totalAmountOfElementsInRow = 20;
 
 class App extends Component {
@@ -21,53 +22,35 @@ class App extends Component {
         store.dispatch({ type: APPLICATION_START });
     }
 
-    getRows = rowKeyPrefix => numberOfRows => numberOfElementsInRow => (
-        Array(numberOfRows)
-            .fill(0)
-            .map((_, index) => (
-                <LazyCollectionRenderer
-                    key={index}
-                    CollectionComponentRender={React.forwardRef(
-                        ({ children, onFocusedIndexUpdated, ...restProps }, ref) => (
-                            <Columns
-                                ref={ref}
-                                withScroll
-                                withPointerSupport
-                                id={`${rowKeyPrefix}-${index}`}
-                                key={`${rowKeyPrefix}-${index}`}
-                                rowHeader={<RowHeader title={`Row ${index + 1}`} />}
-                                withDefaultFocus={index === 0}
-                                onFocusedIndexUpdated={onFocusedIndexUpdated}
-                                {...restProps}
-                            >
-                                {children}
-                            </Columns>
-                        ),
-                    )}
-                    ElementRender={({ id, title, isFocused }) => (
-                        <Widget
-                            id={id}
-                            isFocused={isFocused}
-                        >
-                            {title}
-                        </Widget>
-                    )}
-                    getElementsDataForRange={getDataSource(totalAmountOfElementsInRow)}
-                    totalAmount={numberOfElementsInRow}
-                    initialRenderAmount={8}
-                    initiFocusedIndex={0}
-                    minVisibleAmountOnRight={8}
-                />
-            ))
-    );
-
     render() {
         return (
             <Provider store={store}>
                 <Scroll>
-                    <Rows id="rows-navigation" elementClassName="row">
-                        {this.getRows('columns')(20)(totalAmountOfElementsInRow)}
-                    </Rows>
+                    <LazyCollectionRenderer
+                        CollectionComponentRender={React.forwardRef(
+                            ({ children, onFocusedIndexUpdated, ...restProps }) => (
+                                <Rows
+                                    id="rows-navigation"
+                                    elementClassName="row"
+                                    {...restProps}
+                                >
+                                    {children}
+                                </Rows>
+                            )
+                        )}
+                        ElementRender={(elem) => elem}
+                        getElementsDataForRange={
+                            getRowsDataGenerator
+                                ('columns')
+                                (20)
+                                (totalAmountOfElementsInRow)
+                        }
+                        totalAmount={totalAmountOfRows}
+                        initialRenderAmount={1}
+                        minVisibleAmountOnRight={2}
+                    >
+                        
+                    </LazyCollectionRenderer>
                 </Scroll>
             </Provider>
         );
@@ -75,3 +58,47 @@ class App extends Component {
 }
 
 export default App;
+
+
+const getRowsDataGenerator = rowKeyPrefix => numberOfRows => numberOfElementsInRow => {
+    const rows = Array(numberOfRows)
+        .fill(0)
+        .map((_, index) => (
+            <LazyCollectionRenderer
+                key={index}
+                CollectionComponentRender={React.forwardRef(
+                    ({ children, onFocusedIndexUpdated, ...restProps }, ref) => (
+                        <Columns
+                            ref={ref}
+                            withScroll
+                            withPointerSupport
+                            id={`${rowKeyPrefix}-${index}`}
+                            key={`${rowKeyPrefix}-${index}`}
+                            rowHeader={<RowHeader title={`Row ${index + 1}`} />}
+                            withDefaultFocus={index === 0}
+                            onFocusedIndexUpdated={onFocusedIndexUpdated}
+                            {...restProps}
+                        >
+                            {children}
+                        </Columns>
+                    ),
+                )}
+                ElementRender={({ id, title, isFocused }) => (
+                    <Widget
+                        id={id}
+                        isFocused={isFocused}
+                    >
+                        {title}
+                    </Widget>
+                )}
+                getElementsDataForRange={getDataSource(totalAmountOfElementsInRow)}
+                totalAmount={numberOfElementsInRow}
+                initialRenderAmount={8}
+                initialFocusedIndex={0}
+                minVisibleAmountOnRight={8}
+            />
+        ));
+    
+    return (rangeStart, rangeEnd) => rows
+        .slice(rangeStart, rangeEnd);
+};

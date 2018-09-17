@@ -1,9 +1,9 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import FocusableComponent from '../FocusableComponent';
 import { componentDidGetFocused } from '../../../utils/focusUtils';
 
-class Rows extends PureComponent {
+class Rows extends Component {
     constructor(props) {
         super(props);
 
@@ -17,7 +17,32 @@ class Rows extends PureComponent {
     componentDidUpdate(prevProps) {
         if (componentDidGetFocused(this.props, prevProps)) {
             this.props.focusElement(this.state.refs[this.props.defaultFocusedIndex].current);
+        }        
+    }
+
+    shouldComponentUpdate(nextProps) {
+        const focusedIndex = this.state.refs
+            .findIndex(childRef => nextProps.focusedComponent === childRef.current);
+        const focusInsideWasChanged = focusedIndex !== -1
+            && focusedIndex !== this.getLastFocusedIndex();
+        if (focusInsideWasChanged) {
+            this.props.onFocusedIndexUpdated(this.focusedIndex);
         }
+
+        return nextProps.children !== this.props.children;
+    }
+
+    static getDerivedStateFromProps({ children }, { refs }) {
+        if (children.length !== refs.length) {
+            const amountOfChildren = children.length;
+            return {
+                amountOfChildren,
+                refs: Array(amountOfChildren)
+                    .fill()
+                    .map(() => React.createRef()),
+            };
+        }
+        return null;
     }
 
     render() {
@@ -40,6 +65,7 @@ class Rows extends PureComponent {
                 <FocusableComponent
                     key={`${id}-${index}`}
                     id={`${id}-${index}`}
+                    parentId={id}
                     className={elementClassName}
                     ref={refs[index]}
                     hasDefaultFocus={focusedIndex === index}
@@ -74,6 +100,7 @@ Rows.propTypes = {
     defaultFocusedIndex: PropTypes.number,
     isFocused: PropTypes.bool,
     focusElement: PropTypes.func,
+    onFocusedIndexUpdated: PropTypes.func,
 };
 
 Rows.defaultProps = {
@@ -88,6 +115,7 @@ Rows.defaultProps = {
     defaultFocusedIndex: 0,
     isFocused: false,
     focusElement: () => { },
+    onFocusedIndexUpdated: () => { },
 };
 
 export default Rows;

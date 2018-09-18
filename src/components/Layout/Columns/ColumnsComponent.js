@@ -129,7 +129,6 @@ class Columns extends Component {
         } = this.props;
 
         const { refs, offsetLeft } = this.state;
-        console.log(offsetLeft);
         return (
             <div className={classnames('columns-container', withScroll && 'with-scroll', className)}>
                 {rowHeader}

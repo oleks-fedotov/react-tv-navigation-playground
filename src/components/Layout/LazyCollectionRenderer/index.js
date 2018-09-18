@@ -1,3 +1,4 @@
+import { squashHorizontalRange } from './../../../utils/rangeUtils';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -30,23 +31,23 @@ class LazyCollectionRenderer extends PureComponent {
 
     componentDidMount() {
         const {
-            renderedRangeStartIndex,
-            renderedRangeEndIndex,
+            rangeStart,
+            rangeEnd,
         } = this.state;
-        this.renderElementsForRange(renderedRangeStartIndex, renderedRangeEndIndex);
+        this.renderElementsForRange(rangeStart, rangeEnd);
     }
 
-    renderElementsForRange(renderedRangeStartIndex, renderedRangeEndIndex) {
+    renderElementsForRange(rangeStart, rangeEnd) {
         const { getElementsDataForRange } = this.props;
         const dataObjects = getElementsDataForRange(
-            renderedRangeStartIndex,
-            renderedRangeEndIndex,
+            rangeStart,
+            rangeEnd,
         );
 
         this.setState({
             dataObjects,
-            renderedRangeStartIndex,
-            renderedRangeEndIndex,
+            rangeStart,
+            rangeEnd,
         });
     }
 
@@ -55,11 +56,12 @@ class LazyCollectionRenderer extends PureComponent {
             minVisibleAmountOnRight,
             minVisibleAmountOnLeft,
             totalAmount,
+            squashRange
         } = this.props;
 
         const {
-            renderedRangeStartIndex,
-            renderedRangeEndIndex,
+            rangeStart,
+            rangeEnd,
         } = this.state;
 
         this.focusedIndex = newIndex;
@@ -67,34 +69,40 @@ class LazyCollectionRenderer extends PureComponent {
         const newMostRightVisibleIndex = newIndex + minVisibleAmountOnRight;
         const newMostLeftVisibleIndex = newIndex - minVisibleAmountOnLeft;
 
-        const shouldRenderMoreOnRight = renderedRangeEndIndex < newMostRightVisibleIndex;
+        const shouldRenderMoreOnRight = rangeEnd < newMostRightVisibleIndex;
         const shouldRenderMoreOnLeft = newMostLeftVisibleIndex >= 0
-            && renderedRangeStartIndex > newMostLeftVisibleIndex;
+            && rangeStart > newMostLeftVisibleIndex;
 
         if (shouldRenderMoreOnRight || shouldRenderMoreOnLeft) {
             const {
-                renderedRangeStartIndex: newRenderedRangeStartIndex,
-                renderedRangeEndIndex: newRenderedRangeEndIndex,
+                rangeStart: newRangeStart,
+                rangeEnd: newRangeEnd,
             } = shouldRenderMoreOnLeft
-                ? getIncreaseRangeOnLeft(
-                    renderedRangeStartIndex,
-                    renderedRangeEndIndex,
-                    minVisibleAmountOnLeft,
+                ? squashRange(
+                    getIncreaseRangeOnLeft(rangeStart, rangeEnd, minVisibleAmountOnLeft),
+                    {
+                        leftBuffer: minVisibleAmountOnLeft,
+                        rightBuffer: minVisibleAmountOnRight
+                    },
+                    -1
                 )
-                : getIncreaseRangeOnRight(
-                    renderedRangeStartIndex,
-                    renderedRangeEndIndex,
-                    minVisibleAmountOnRight,
-                    totalAmount,
+                : squashRange(
+                    getIncreaseRangeOnRight(rangeStart, rangeEnd, minVisibleAmountOnRight, totalAmount),
+                    {
+                        leftBuffer: minVisibleAmountOnLeft,
+                        rightBuffer: minVisibleAmountOnRight
+                    },
+                    1
                 );
+
             const shouldRerenderElements = isRangeDifferent(
-                newRenderedRangeStartIndex, newRenderedRangeEndIndex,
-                renderedRangeStartIndex, renderedRangeEndIndex,
+                newRangeStart, newRangeEnd,
+                rangeStart, rangeEnd,
             );
             if (shouldRerenderElements) {
                 this.renderElementsForRange(
-                    newRenderedRangeStartIndex,
-                    newRenderedRangeEndIndex,
+                    newRangeStart,
+                    newRangeEnd,
                 );
             }
         }
@@ -152,6 +160,8 @@ LazyCollectionRenderer.propTypes = {
     navigationDown: PropTypes.node,
     navigationLeft: PropTypes.node,
     navigationRight: PropTypes.node,
+
+    squashRange: PropTypes.func
 };
 
 LazyCollectionRenderer.defaultProps = {
@@ -160,6 +170,8 @@ LazyCollectionRenderer.defaultProps = {
     initialFocusedIndex: 0,
     minVisibleAmountOnLeft: 5,
     minVisibleAmountOnRight: 5,
+
+    squashRange: squashHorizontalRange
 };
 
 export default LazyCollectionRenderer;

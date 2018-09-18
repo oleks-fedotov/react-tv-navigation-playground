@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import {
     calculateRenderedRange,
@@ -7,7 +7,7 @@ import {
     isRangeDifferent,
 } from '../../../utils/rangeUtils';
 
-class LazyCollectionRenderer extends Component {
+class LazyCollectionRenderer extends PureComponent {
     constructor(props) {
         super(props);
 

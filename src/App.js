@@ -28,8 +28,9 @@ class App extends Component {
                 <Scroll>
                     <LazyCollectionRenderer
                         CollectionComponentRender={React.forwardRef(
-                            ({ children, onFocusedIndexUpdated, ...restProps }) => (
+                            ({ children, onFocusedIndexUpdated, ...restProps }, ref) => (
                                 <Rows
+                                    ref={ref}
                                     id="rows-navigation"
                                     elementClassName="row"
                                     onFocusedIndexUpdated={onFocusedIndexUpdated}
@@ -48,7 +49,7 @@ class App extends Component {
                         }
                         totalAmount={totalAmountOfRows}
                         initialRenderAmount={1}
-                        minVisibleAmountOnRight={2}
+                        minVisibleAmountOnRight={5}
                     >
                         
                     </LazyCollectionRenderer>

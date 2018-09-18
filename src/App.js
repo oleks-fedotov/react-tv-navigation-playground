@@ -32,13 +32,14 @@ class App extends Component {
                                 <Rows
                                     id="rows-navigation"
                                     elementClassName="row"
+                                    onFocusedIndexUpdated={onFocusedIndexUpdated}
                                     {...restProps}
                                 >
                                     {children}
                                 </Rows>
                             )
                         )}
-                        ElementRender={(elem) => elem}
+                        ElementRender={rowsElementRender}
                         getElementsDataForRange={
                             getRowsDataGenerator
                                 ('columns')
@@ -59,14 +60,37 @@ class App extends Component {
 
 export default App;
 
+const rowsElementRender = ({
+    key,
+    CollectionComponentRender,
+    ElementRender,
+    getElementsDataForRange,
+    totalAmount,
+    initialRenderAmount,
+    initialFocusedIndex,
+    minVisibleAmountOnRight,
+    ...restProps,
+}) => (
+    <LazyCollectionRenderer
+            key={key}
+            CollectionComponentRender={CollectionComponentRender}
+            ElementRender={ElementRender}
+            getElementsDataForRange={getElementsDataForRange}
+            totalAmount={totalAmount}
+            initialRenderAmount={initialRenderAmount}
+            initialFocusedIndex={initialFocusedIndex}
+            minVisibleAmountOnRight={minVisibleAmountOnRight}
+            {...restProps}
+    />
+);
 
 const getRowsDataGenerator = rowKeyPrefix => numberOfRows => numberOfElementsInRow => {
     const rows = Array(numberOfRows)
         .fill(0)
         .map((_, index) => (
-            <LazyCollectionRenderer
-                key={index}
-                CollectionComponentRender={React.forwardRef(
+            {
+                key: index,
+                CollectionComponentRender: React.forwardRef(
                     ({ children, onFocusedIndexUpdated, ...restProps }, ref) => (
                         <Columns
                             ref={ref}
@@ -82,21 +106,21 @@ const getRowsDataGenerator = rowKeyPrefix => numberOfRows => numberOfElementsInR
                             {children}
                         </Columns>
                     ),
-                )}
-                ElementRender={({ id, title, isFocused }) => (
+                ),
+                ElementRender: ({ id, title, isFocused }) => (
                     <Widget
                         id={id}
                         isFocused={isFocused}
                     >
                         {title}
                     </Widget>
-                )}
-                getElementsDataForRange={getDataSource(totalAmountOfElementsInRow)}
-                totalAmount={numberOfElementsInRow}
-                initialRenderAmount={8}
-                initialFocusedIndex={0}
-                minVisibleAmountOnRight={8}
-            />
+                ),
+                getElementsDataForRange: getDataSource(totalAmountOfElementsInRow),
+                totalAmount: numberOfElementsInRow,
+                initialRenderAmount: 5,
+                initialFocusedIndex: 0,
+                minVisibleAmountOnRight: 5,
+            }
         ));
     
     return (rangeStart, rangeEnd) => rows

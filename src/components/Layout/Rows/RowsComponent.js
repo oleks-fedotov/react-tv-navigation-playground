@@ -21,16 +21,22 @@ class Rows extends Component {
     }
 
     shouldComponentUpdate(nextProps) {
-        const focusedIndex = this.state.refs
-            .findIndex(childRef => nextProps.focusedComponent === childRef.current);
-        const focusInsideWasChanged = focusedIndex !== -1
-            && focusedIndex !== this.getLastFocusedIndex();
-        if (focusInsideWasChanged) {
-            this.props.onFocusedIndexUpdated(this.focusedIndex);
+        if (nextProps.focusedComponent) {
+            const focusedIndex = this.state.refs
+                .findIndex(childRef => nextProps.focusedComponent === childRef.current);
+            const focusInsideWasChanged = focusedIndex !== -1
+                && focusedIndex !== this.getLastFocusedIndex();
+            if (focusInsideWasChanged) {
+                this.saveFocusedIndex(focusedIndex);
+                this.props.onFocusedIndexUpdated(focusedIndex);
+            }
         }
 
         return nextProps.children !== this.props.children;
     }
+
+    getLastFocusedIndex = () => this.focusedIndex;
+    saveFocusedIndex = (focusedIndex) => { this.focusedIndex = focusedIndex; }
 
     static getDerivedStateFromProps({ children }, { refs }) {
         if (children.length !== refs.length) {

@@ -58,12 +58,15 @@ class Columns extends Component {
 
     static getDerivedStateFromProps(
         { focusedComponent, withScroll, children },
-        { offsetLeft, containerOffsetLeft, refs },
+        { offsetLeft, containerOffsetLeft, refs, focusedComponent: oldFocusedComponent },
     ) {
         let offsetNewState = null;
         let childrenRefsNewState = null;
 
-        if (focusedComponent && withScroll) {
+        if (oldFocusedComponent !== focusedComponent
+            && focusedComponent
+            && withScroll)
+        {
             const element = ReactDOM.findDOMNode(focusedComponent);
             const focusedRect = element.getBoundingClientRect();
             const newOffsetLeft = Math.abs(offsetLeft + focusedRect.left - containerOffsetLeft);
@@ -82,7 +85,11 @@ class Columns extends Component {
         }
 
         return offsetNewState || childrenRefsNewState
-            ? { ...offsetNewState, ...childrenRefsNewState }
+            ? {
+                ...offsetNewState,
+                ...childrenRefsNewState,
+                focusedComponent
+            }
             : null;
     }
 
@@ -122,13 +129,14 @@ class Columns extends Component {
         } = this.props;
 
         const { refs, offsetLeft } = this.state;
-
+        console.log(offsetLeft);
         return (
             <div className={classnames('columns-container', withScroll && 'with-scroll', className)}>
                 {rowHeader}
                 <div
                     ref={this.scrollableContainer}
                     style={withScroll ? this.getLeftOffsetStyleForScroll(offsetLeft) : {}}
+                    className={classnames({ 'animated-scroll': withScroll })}
                 >
                     {this.renderRow(
                         children.map((child, index) => (

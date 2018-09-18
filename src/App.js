@@ -118,7 +118,7 @@ const getRowsDataGenerator = rowKeyPrefix => numberOfRows => numberOfElementsInR
                 ),
                 getElementsDataForRange: getDataSource(totalAmountOfElementsInRow),
                 totalAmount: numberOfElementsInRow,
-                initialRenderAmount: 5,
+                initialRenderAmount: 8,
                 initialFocusedIndex: 0,
                 minVisibleAmountOnRight: 5,
             }

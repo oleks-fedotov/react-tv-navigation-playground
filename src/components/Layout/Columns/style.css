@@ -7,5 +7,9 @@
 .with-scroll {
     width: 100%;
     max-width: 100%;
-    overflow-x: visible;
+    overflow-x: visible
+}
+
+.animated-scroll {
+    transition: transform 0.3s;
 }

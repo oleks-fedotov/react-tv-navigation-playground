@@ -60,7 +60,7 @@ export const isRangeDifferent = (
  * @param {object} rangeBuffersInfo - contains 2 properties, e.g. left/right visible buffers
  * @param {number} lastMovementDirection - 1 the last movement was done to the end of the range, if -1 - then to the beginning
  */
-export const squashHorizontalRange = (
+export const shrinkHorizontalRange = (
     { rangeStart, rangeEnd },
     { leftBuffer, rightBuffer },
     lastMovementDirection

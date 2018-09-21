@@ -48,7 +48,6 @@ class App extends Component {
                                 (totalAmountOfElementsInRow)
                         }
                         totalAmount={totalAmountOfRows}
-                        initialRenderAmount={1}
                         minVisibleAmountOnRight={5}
                     >
                         
@@ -78,7 +77,6 @@ const rowsElementRender = ({
             ElementRender={ElementRender}
             getElementsDataForRange={getElementsDataForRange}
             totalAmount={totalAmount}
-            initialRenderAmount={initialRenderAmount}
             initialFocusedIndex={initialFocusedIndex}
             minVisibleAmountOnRight={minVisibleAmountOnRight}
             {...restProps}
@@ -118,7 +116,6 @@ const getRowsDataGenerator = rowKeyPrefix => numberOfRows => numberOfElementsInR
                 ),
                 getElementsDataForRange: getDataSource(totalAmountOfElementsInRow),
                 totalAmount: numberOfElementsInRow,
-                initialRenderAmount: 8,
                 initialFocusedIndex: 0,
                 minVisibleAmountOnRight: 5,
             }

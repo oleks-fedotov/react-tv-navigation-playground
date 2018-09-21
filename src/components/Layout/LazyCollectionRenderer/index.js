@@ -1,4 +1,4 @@
-import { squashHorizontalRange } from './../../../utils/rangeUtils';
+import { shrinkHorizontalRange } from './../../../utils/rangeUtils';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -38,17 +38,19 @@ class LazyCollectionRenderer extends PureComponent {
     }
 
     renderElementsForRange(rangeStart, rangeEnd) {
-        const { getElementsDataForRange } = this.props;
-        const dataObjects = getElementsDataForRange(
-            rangeStart,
-            rangeEnd,
-        );
+        setTimeout(() => { 
+            const { getElementsDataForRange } = this.props;
+            const dataObjects = getElementsDataForRange(
+                rangeStart,
+                rangeEnd,
+            );
 
-        this.setState({
-            dataObjects,
-            rangeStart,
-            rangeEnd,
-        });
+            this.setState({
+                dataObjects,
+                rangeStart,
+                rangeEnd,
+            });
+        }, 1);
     }
 
     fetchDataForFocusedIndex = (newIndex) => {
@@ -56,7 +58,7 @@ class LazyCollectionRenderer extends PureComponent {
             minVisibleAmountOnRight,
             minVisibleAmountOnLeft,
             totalAmount,
-            squashRange
+            shrinkRange
         } = this.props;
 
         const {
@@ -78,7 +80,7 @@ class LazyCollectionRenderer extends PureComponent {
                 rangeStart: newRangeStart,
                 rangeEnd: newRangeEnd,
             } = shouldRenderMoreOnLeft
-                ? squashRange(
+                ? shrinkRange(
                     getIncreaseRangeOnLeft(rangeStart, rangeEnd, minVisibleAmountOnLeft),
                     {
                         leftBuffer: minVisibleAmountOnLeft,
@@ -86,7 +88,7 @@ class LazyCollectionRenderer extends PureComponent {
                     },
                     -1
                 )
-                : squashRange(
+                : shrinkRange(
                     getIncreaseRangeOnRight(rangeStart, rangeEnd, minVisibleAmountOnRight, totalAmount),
                     {
                         leftBuffer: minVisibleAmountOnLeft,
@@ -149,7 +151,6 @@ LazyCollectionRenderer.propTypes = {
 
     className: PropTypes.string,
 
-    initialRenderAmount: PropTypes.number,
     initialFocusedIndex: PropTypes.number,
 
     minVisibleAmountOnLeft: PropTypes.number,
@@ -161,17 +162,16 @@ LazyCollectionRenderer.propTypes = {
     navigationLeft: PropTypes.node,
     navigationRight: PropTypes.node,
 
-    squashRange: PropTypes.func
+    shrinkRange: PropTypes.func
 };
 
 LazyCollectionRenderer.defaultProps = {
     className: '',
-    initialRenderAmount: 5,
     initialFocusedIndex: 0,
     minVisibleAmountOnLeft: 5,
     minVisibleAmountOnRight: 5,
 
-    squashRange: squashHorizontalRange
+    shrinkRange: shrinkHorizontalRange
 };
 
 export default LazyCollectionRenderer;

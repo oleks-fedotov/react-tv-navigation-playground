@@ -17,7 +17,7 @@ class Rows extends Component {
     componentDidUpdate(prevProps) {
         if (componentDidGetFocused(this.props, prevProps)) {
             this.props.focusElement(this.state.refs[this.props.defaultFocusedIndex].current);
-        }        
+        }
     }
 
     shouldComponentUpdate(nextProps) {

@@ -13,3 +13,8 @@
 .animated-scroll {
     transition: transform 0.3s;
 }
+
+.position-outside {
+    position: fixed;
+    left: -500px;
+}

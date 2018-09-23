@@ -1,3 +1,4 @@
+/** @flow */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
@@ -6,6 +7,13 @@ import { componentDidGetFocused } from '../../../utils/focusUtils';
 import FocusableComponent from '../FocusableComponent';
 import WithPointer from '../WithPointer';
 import './style.css';
+
+type ChildStyle = {
+    id: number | string,
+    left?: number,
+    right?: number,
+    shouldCalculatePosition?: boolean
+};
 
 class Columns extends Component {
     constructor(props) {
@@ -47,16 +55,11 @@ class Columns extends Component {
                 containerOffsetLeft: this.scrollableContainer.current.offsetLeft,
             });
         }
-        if (this.didChildrenMount(this.state.refs)) {
+        if (Columns.didChildrenMount(this.state.refs)) {
             this.setState({
                 childrenStyles: Columns.getChildrenStyles(this.state.refs),
             });
         }
-    }
-
-    static getContainerLeftOffset(childrenStyles, focusedComponentRef) {
-        const focusedId = focusedComponentRef.props.childId;
-        return childrenStyles[focusedId].left;
     }
 
     componentDidUpdate(prevProps) {
@@ -141,7 +144,7 @@ class Columns extends Component {
     ) {
         let offsetNewState = null;
         let childrenRefsNewState = null;
-        let newStateChildrenStyles = null;
+        let childrenStylesNewState = null;
 
         if (oldFocusedComponent !== focusedComponent
             && focusedComponent
@@ -159,32 +162,39 @@ class Columns extends Component {
                     .fill()
                     .map(() => React.createRef()),
             };
-
-            newStateChildrenStyles = {
-                childrenStyles: Columns.cleanChildrenStyles(childrenStyles, children),
+            const newChildrenIds = Columns.getChildrenIds(children);
+            childrenStylesNewState = {
+                childrenStyles:
+                    Columns.updateRightSideStyles(
+                        Columns.updateLeftSideStyles(
+                            childrenStyles,
+                            newChildrenIds,
+                        ),
+                        newChildrenIds,
+                    ),
             };
 
-            if (Columns.elementsAddedOnLeft(childrenStyles, children)) {
-                const newLeftChildrenStyles = Columns.getNewLeftChildrenStyles(
-                    Columns.getNewChildren(childrenStyles, children),
-                );
-                newStateChildrenStyles = {
-                    childrenStyles: {
-                        ...newStateChildrenStyles.childrenStyles,
-                        ...newLeftChildrenStyles,
-                    },
-                };
-            } else if (Columns.elementsAddedOnRight(childrenStyles, children)) {
-                const newRightChildrenStyles = Columns.getNewRightChildrenStyles(
-                    Columns.getNewChildren(childrenStyles, children),
-                );
-                newStateChildrenStyles = {
-                    childrenStyles: {
-                        ...newStateChildrenStyles.childrenStyles,
-                        ...newRightChildrenStyles,
-                    },
-                };
-            }
+            // if (Columns.elementsAddedOnLeft(childrenStyles, children)) {
+            //     const newLeftChildrenStyles = Columns.getNewLeftChildrenStyles(
+            //         Columns.getNewChildren(childrenStyles, children),
+            //     );
+            //     childrenStylesNewState = {
+            //         childrenStyles: {
+            //             ...childrenStylesNewState.childrenStyles,
+            //             ...newLeftChildrenStyles,
+            //         },
+            //     };
+            // } else if (Columns.elementsAddedOnRight(childrenStyles, children)) {
+            //     const newRightChildrenStyles = Columns.getNewRightChildrenStyles(
+            //         Columns.getNewChildren(childrenStyles, children),
+            //     );
+            //     childrenStylesNewState = {
+            //         childrenStyles: {
+            //             ...childrenStylesNewState.childrenStyles,
+            //             ...newRightChildrenStyles,
+            //         },
+            //     };
+            // }
         }
 
         return offsetNewState || childrenRefsNewState
@@ -193,9 +203,97 @@ class Columns extends Component {
                 ...childrenRefsNewState,
                 focusedComponent,
                 childrenChanged: !!childrenRefsNewState,
-                ...newStateChildrenStyles,
+                ...childrenStylesNewState,
             }
             : null;
+    }
+
+    saveFocusedIndex(focusedComponent) {
+        this.focusedIndex = this.state
+            .refs
+            .findIndex(childRef => childRef.current === focusedComponent);
+    }
+
+    getLastFocusedIndex = () => this.focusedIndex;
+
+    render() {
+        const {
+            id,
+            className,
+            withScroll,
+            withDefaultFocus,
+            children,
+            elementClassName,
+            defaultFocusedIndex,
+            navigationUp: parentNavigationUp,
+            navigationDown: parentNavigationDown,
+            navigationLeft: parentNavigationLeft,
+            navigationRight: parentNavigationRight,
+            rowHeader,
+        } = this.props;
+
+        const { refs, offsetLeft, childrenStyles } = this.state;
+
+        return (
+            <div className={classnames('columns-container', withScroll && 'with-scroll', className)}>
+                {rowHeader}
+                <div
+                    ref={this.scrollableContainer}
+                    style={withScroll ? Columns.getLeftOffsetStyleForScroll(offsetLeft) : {}}
+                    className={classnames({ 'animated-scroll': withScroll })}
+                >
+                    {this.renderRow(
+                        children.map((child, index) => (
+                            <FocusableComponent
+                                key={`${id}-${child.props.id}`}
+                                id={`${id}-${child.props.id}`}
+                                parentId={id}
+                                childId={child.props.id}
+                                className={
+                                    classnames(
+                                        elementClassName,
+                                        {
+                                            positionOutside: childrenStyles && childrenStyles[child.props.id].position === 'fixed',
+                                        },
+                                    )
+                                }
+                                ref={refs[index]}
+                                hasDefaultFocus={withDefaultFocus ? defaultFocusedIndex === index : false}
+                                navigationUp={parentNavigationUp}
+                                navigationDown={parentNavigationDown}
+                                navigationLeft={index > 0
+                                    ? refs[index - 1]
+                                    : parentNavigationLeft
+                                }
+                                navigationRight={index < this.state.amountOfChildren - 1
+                                    ? refs[index + 1]
+                                    : parentNavigationRight
+                                }
+                            >
+                                {child}
+                            </FocusableComponent>
+                        )),
+                    )}
+                </div>
+            </div>);
+    }
+
+    static getChildrenIds = children => children.map(child => child.props.id);
+
+    static getContainerLeftOffset(childrenStyles, focusedComponentRef) {
+        const focusedId = focusedComponentRef.props.childId;
+        return childrenStyles[focusedId].left;
+    }
+
+    static getLeftOffsetStyleForScroll(offsetLeftValue) {
+        const offsetStyle = `translate(-${offsetLeftValue}px)`;
+        return {
+            WebkitTransform: offsetStyle,
+            MozTransform: offsetStyle,
+            MsTransform: offsetStyle,
+            OTransform: offsetStyle,
+            transform: offsetStyle,
+        };
     }
 
     static getChildrenStyles(childrenRefs) {
@@ -288,7 +386,7 @@ class Columns extends Component {
         return elementRect.left;
     }
 
-    didChildrenMount(childrenRefs) {
+    static didChildrenMount(childrenRefs) {
         return childrenRefs
             && childrenRefs.length
             && childrenRefs[0]
@@ -298,92 +396,12 @@ class Columns extends Component {
     static didChildrenChange(prevRefs, newChildren) {
         return prevRefs.length !== newChildren.length;
     }
-
-    saveFocusedIndex(focusedComponent) {
-        this.focusedIndex = this.state.refs.findIndex(childRef => childRef.current === focusedComponent);
-    }
-
-    getLastFocusedIndex() {
-        return this.focusedIndex;
-    }
-
-    getLeftOffsetStyleForScroll(offsetLeftValue) {
-        const offsetStyle = `translate(-${offsetLeftValue}px)`;
-        return {
-            WebkitTransform: offsetStyle,
-            MozTransform: offsetStyle,
-            MsTransform: offsetStyle,
-            OTransform: offsetStyle,
-            transform: offsetStyle,
-        };
-    }
-
-    render() {
-        const {
-            id,
-            className,
-            withScroll,
-            withDefaultFocus,
-            children,
-            elementClassName,
-            defaultFocusedIndex,
-            navigationUp: parentNavigationUp,
-            navigationDown: parentNavigationDown,
-            navigationLeft: parentNavigationLeft,
-            navigationRight: parentNavigationRight,
-            rowHeader,
-        } = this.props;
-
-        const { refs, offsetLeft, childrenStyles } = this.state;
-
-        return (
-            <div className={classnames('columns-container', withScroll && 'with-scroll', className)}>
-                {rowHeader}
-                <div
-                    ref={this.scrollableContainer}
-                    style={withScroll ? this.getLeftOffsetStyleForScroll(offsetLeft) : {}}
-                    className={classnames({ 'animated-scroll': withScroll })}
-                >
-                    {this.renderRow(
-                        children.map((child, index) => (
-                            <FocusableComponent
-                                key={`${id}-${child.props.id}`}
-                                id={`${id}-${child.props.id}`}
-                                parentId={id}
-                                childId={child.props.id}
-                                className={
-                                    classnames(
-                                        elementClassName,
-                                        {
-                                            positionOutside: childrenStyles && childrenStyles[child.props.id].position === 'fixed',
-                                        },
-                                    )
-                                }
-                                ref={refs[index]}
-                                hasDefaultFocus={withDefaultFocus ? defaultFocusedIndex === index : false}
-                                navigationUp={parentNavigationUp}
-                                navigationDown={parentNavigationDown}
-                                navigationLeft={index > 0
-                                    ? refs[index - 1]
-                                    : parentNavigationLeft
-                                }
-                                navigationRight={index < this.state.amountOfChildren - 1
-                                    ? refs[index + 1]
-                                    : parentNavigationRight
-                                }
-                            >
-                                {child}
-                            </FocusableComponent>
-                        )),
-                    )}
-                </div>
-            </div>);
-    }
 }
 
 Columns.propTypes = {
     id: PropTypes.string.isRequired,
     className: PropTypes.string,
+    elementClassName: PropTypes.string,
     children: PropTypes.arrayOf(PropTypes.element),
     rowHeader: PropTypes.node,
     focusedComponent: PropTypes.node,
@@ -407,6 +425,7 @@ Columns.propTypes = {
 
 Columns.defaultProps = {
     className: '',
+    elementClassName: '',
     children: [],
     withScroll: false,
     withDefaultFocus: false,
@@ -424,3 +443,77 @@ Columns.defaultProps = {
 };
 
 export default Columns;
+
+type UpdateStylesFunc = (ChildStyle[], Array<string | number>) => ChildStyle[];
+export const updateRightSideStyles: UpdateStylesFunc = (oldChildrenStyles, newChildrenIds) => {
+    const wasLastRemoved = newChildrenIds.indexOf(
+        oldChildrenStyles[oldChildrenStyles.length - 1]
+    ) < 0;
+    const oldChildrenIds = oldChildrenStyles.map(c => c.id);
+    const wasNewElementAdded = oldChildrenIds.indexOf(
+        newChildrenIds[newChildrenIds.length - 1]
+    ) < 0;
+    return wasLastRemoved
+        ? cleanTailChildrenStyles(oldChildrenStyles, newChildrenIds)
+        : addNewTailChildrenStyles(oldChildrenStyles, oldChildrenIds, newChildrenIds)
+};
+
+type ReduceDefaultValue = {
+    resultChildrenStyles: ChildStyle[],
+    shouldSkipChecks: boolean
+};
+export const cleanTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, newChildrenIds) => {
+    const reduceDefaultValue: ReduceDefaultValue = {
+        shouldSkipChecks: false,
+        resultChildrenStyles: []
+    };
+    const { resultChildrenStyles } = oldChildrenStyles.reduceRight(
+        ({ resultChildrenStyles, shouldSkipChecks }, childStyles) => (
+            shouldSkipChecks || newChildrenIds.includes(childStyles.id)
+                ? {
+                    shouldSkipChecks: true,
+                    resultChildrenStyles: [childStyles, ...resultChildrenStyles]
+                }
+                : {
+                    resultChildrenStyles,
+                    shouldSkipChecks: false
+                }
+        ),
+        reduceDefaultValue
+    );
+
+    return resultChildrenStyles;
+};
+
+type AddNewChildrenStylesFunc = (ChildStyle[], Array < string | number >, Array<string | number>) => ChildStyle[];
+export const addNewTailChildrenStyles: AddNewChildrenStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
+    const reduceDefaultValue: ReduceDefaultValue = {
+        shouldSkipChecks: false,
+        resultChildrenStyles: []
+    };
+
+    const { resultChildrenStyles: newChildrenStyles } = newChildrenIds.reduceRight(
+        (
+            {
+                resultChildrenStyles,
+                shouldSkipChecks
+            },
+            newChildId
+        ) => (
+                shouldSkipChecks || oldChildrenIds.includes(newChildId)
+                    ? {
+                        shouldSkipChecks: true,
+                        resultChildrenStyles
+                    }
+                    : {
+                        shouldSkipChecks: false,
+                        resultChildrenStyles: [
+                            { id: newChildId, shouldCalculatePosition: true },
+                            ...resultChildrenStyles
+                        ]
+                    }
+        ),
+        reduceDefaultValue
+    );
+    return oldChildrenStyles.concat(newChildrenStyles);
+};

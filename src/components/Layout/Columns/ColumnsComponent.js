@@ -450,7 +450,7 @@ export const updateRightSideStyles: UpdateStylesFunc = (oldChildrenStyles, newCh
         oldChildrenStyles[oldChildrenStyles.length - 1]
     ) < 0;
     const oldChildrenIds = oldChildrenStyles.map(c => c.id);
-    const wasNewElementAdded = oldChildrenIds.indexOf(
+    const didAddNewElements = oldChildrenIds.indexOf(
         newChildrenIds[newChildrenIds.length - 1]
     ) < 0;
     return wasLastRemoved

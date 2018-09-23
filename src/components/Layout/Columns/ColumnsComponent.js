@@ -49,7 +49,7 @@ class Columns extends Component {
         }
         if (this.didChildrenMount(this.state.refs)) {
             this.setState({
-                childrenStyles: Columns.getChildrenStyles(this.state.refs)
+                childrenStyles: Columns.getChildrenStyles(this.state.refs),
             });
         }
     }
@@ -67,15 +67,16 @@ class Columns extends Component {
         }
 
         if (this.state.childrenChanged) {
+            const currentContainerOffset = this.state.offsetLeft;
             const { childrenStyles: newChildrenStyles } = this.state.refs.reduce(
                 (
                     {
                         accumulatorWidth,
-                        childrenStyles
+                        childrenStyles,
                     },
                     {
-                        current: childRef
-                    }
+                        current: childRef,
+                    },
                 ) => {
                     const id = childRef.props.childId;
                     const childStyles = childrenStyles[id];
@@ -87,50 +88,47 @@ class Columns extends Component {
                                 childrenStyles: {
                                     ...childrenStyles,
                                     [id]: {
-                                        left: accumulatorWidth
-                                    }
-                                }
+                                        left: accumulatorWidth,
+                                    },
+                                },
                             };
                         }
                         // right child (end of the lane)
-                        else {
-                            return {
-                                // no need to keep accumulatorWidth anymore, as it was needed
-                                // only for left elements and update existing elements offset
-                                childrenStyles: {
-                                    ...childrenStyles,
-                                    [id]: {
-                                        left: Columns.getElementLeft(childRef)
-                                    }
-                                }
-                            }
-                        }
-                    } else {
                         return {
-                            // keep accumulatorWidth as a reference, how much to shift previously existing elements
-                            accumulatorWidth,
+                            // no need to keep accumulatorWidth anymore, as it was needed
+                            // only for left elements and update existing elements offset
                             childrenStyles: {
                                 ...childrenStyles,
                                 [id]: {
-                                    left: childrenStyles[id].left + accumulatorWidth
-                                }
-                            }
-                        }
+                                    left: currentContainerOffset + Columns.getElementLeft(childRef),
+                                },
+                            },
+                        };
                     }
+                    return {
+                        // keep accumulatorWidth as a reference, how much to shift previously existing elements
+                        accumulatorWidth,
+                        childrenStyles: {
+                            ...childrenStyles,
+                            [id]: {
+                                left: childrenStyles[id].left + accumulatorWidth,
+                            },
+                        },
+                    };
                 },
                 {
                     accumulatorWidth: 0,
-                    childrenStyles: this.state.childrenStyles
-                }
+                    childrenStyles: this.state.childrenStyles,
+                },
             );
             this.setState({
                 offsetLeft: Columns.getContainerLeftOffset(newChildrenStyles, this.props.focusedComponent),
-                childrenStyles: newChildrenStyles
+                childrenStyles: newChildrenStyles,
             });
         }
 
         // map over children
-        // if styles have updateAfterRender property then 
+        // if styles have updateAfterRender property then
     }
 
     static getDerivedStateFromProps(
@@ -138,7 +136,7 @@ class Columns extends Component {
         {
             refs,
             focusedComponent: oldFocusedComponent,
-            childrenStyles
+            childrenStyles,
         },
     ) {
         let offsetNewState = null;
@@ -147,8 +145,7 @@ class Columns extends Component {
 
         if (oldFocusedComponent !== focusedComponent
             && focusedComponent
-            && withScroll)
-        {
+            && withScroll) {
             offsetNewState = {
                 offsetLeft: Columns.getContainerLeftOffset(childrenStyles, focusedComponent),
             };
@@ -164,29 +161,29 @@ class Columns extends Component {
             };
 
             newStateChildrenStyles = {
-                childrenStyles: Columns.cleanChildrenStyles(childrenStyles, children)
+                childrenStyles: Columns.cleanChildrenStyles(childrenStyles, children),
             };
 
             if (Columns.elementsAddedOnLeft(childrenStyles, children)) {
                 const newLeftChildrenStyles = Columns.getNewLeftChildrenStyles(
-                    Columns.getNewChildren(childrenStyles, children)
+                    Columns.getNewChildren(childrenStyles, children),
                 );
                 newStateChildrenStyles = {
                     childrenStyles: {
                         ...newStateChildrenStyles.childrenStyles,
-                        ...newLeftChildrenStyles
-                    }
-                }
+                        ...newLeftChildrenStyles,
+                    },
+                };
             } else if (Columns.elementsAddedOnRight(childrenStyles, children)) {
                 const newRightChildrenStyles = Columns.getNewRightChildrenStyles(
-                    Columns.getNewChildren(childrenStyles, children)
+                    Columns.getNewChildren(childrenStyles, children),
                 );
                 newStateChildrenStyles = {
                     childrenStyles: {
                         ...newStateChildrenStyles.childrenStyles,
-                        ...newRightChildrenStyles
-                    }
-                }
+                        ...newRightChildrenStyles,
+                    },
+                };
             }
         }
 
@@ -196,7 +193,7 @@ class Columns extends Component {
                 ...childrenRefsNewState,
                 focusedComponent,
                 childrenChanged: !!childrenRefsNewState,
-                ...newStateChildrenStyles
+                ...newStateChildrenStyles,
             }
             : null;
     }
@@ -204,15 +201,15 @@ class Columns extends Component {
     static getChildrenStyles(childrenRefs) {
         return childrenRefs.reduce(
             (childIdMap, { current: childRef }) => {
-                const childId = childRef.props.childId;
+                const { childId } = childRef.props;
                 return {
                     ...childIdMap,
                     [childId]: {
-                        left: Columns.getElementLeft(childRef)
-                    }
+                        left: Columns.getElementLeft(childRef),
+                    },
                 };
             },
-            {}
+            {},
         );
     }
 
@@ -230,7 +227,7 @@ class Columns extends Component {
 
     // remove children styles for children, which were removed from children array
     static cleanChildrenStyles(childrenStyles, children) {
-        const newChildrenIds = children.map((child) => child.props.id);
+        const newChildrenIds = children.map(child => child.props.id);
         return Object
             .keys(childrenStyles)
             .reduce(
@@ -238,26 +235,26 @@ class Columns extends Component {
                     newChildrenIds.includes(childId)
                         ? {
                             ...newChildrenStyles,
-                            [childId]: childrenStyles[childId]
+                            [childId]: childrenStyles[childId],
                         }
                         : newChildrenStyles
                 ),
-                {}
+                {},
             );
     }
 
     static getNewLeftChildrenStyles(children) {
         return children.reduce(
-            (newChildrenStyles, {props: childProps}) => (
+            (newChildrenStyles, { props: childProps }) => (
                 {
                     ...newChildrenStyles,
                     [childProps.id]: {
                         position: 'fixed',
-                        shouldUpdateAfterRender: true
-                    }
+                        shouldUpdateAfterRender: true,
+                    },
                 }
             ),
-            {}
+            {},
         );
     }
 
@@ -267,16 +264,16 @@ class Columns extends Component {
                 {
                     ...newChildrenStyles,
                     [childProps.id]: {
-                        shouldUpdateAfterRender: true
-                    }
+                        shouldUpdateAfterRender: true,
+                    },
                 }
             ),
-            {}
+            {},
         );
     }
 
     static getNewChildren(childrenStyles, children) {
-        return children.filter((child) => !childrenStyles[child.props.id]);
+        return children.filter(child => !childrenStyles[child.props.id]);
     }
 
     static getElementWidth(ref) {
@@ -358,8 +355,8 @@ class Columns extends Component {
                                     classnames(
                                         elementClassName,
                                         {
-                                            positionOutside: childrenStyles && childrenStyles[child.props.id].position === 'fixed'
-                                        }
+                                            positionOutside: childrenStyles && childrenStyles[child.props.id].position === 'fixed',
+                                        },
                                     )
                                 }
                                 ref={refs[index]}

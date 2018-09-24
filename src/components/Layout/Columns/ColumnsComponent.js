@@ -165,36 +165,14 @@ class Columns extends Component {
             const newChildrenIds = Columns.getChildrenIds(children);
             childrenStylesNewState = {
                 childrenStyles:
-                    Columns.updateRightSideStyles(
-                        Columns.updateLeftSideStyles(
+                    updateTailChildrenStyles(
+                        updateHeadChildrenStyles(
                             childrenStyles,
                             newChildrenIds,
                         ),
                         newChildrenIds,
                     ),
             };
-
-            // if (Columns.elementsAddedOnLeft(childrenStyles, children)) {
-            //     const newLeftChildrenStyles = Columns.getNewLeftChildrenStyles(
-            //         Columns.getNewChildren(childrenStyles, children),
-            //     );
-            //     childrenStylesNewState = {
-            //         childrenStyles: {
-            //             ...childrenStylesNewState.childrenStyles,
-            //             ...newLeftChildrenStyles,
-            //         },
-            //     };
-            // } else if (Columns.elementsAddedOnRight(childrenStyles, children)) {
-            //     const newRightChildrenStyles = Columns.getNewRightChildrenStyles(
-            //         Columns.getNewChildren(childrenStyles, children),
-            //     );
-            //     childrenStylesNewState = {
-            //         childrenStyles: {
-            //             ...childrenStylesNewState.childrenStyles,
-            //             ...newRightChildrenStyles,
-            //         },
-            //     };
-            // }
         }
 
         return offsetNewState || childrenRefsNewState
@@ -253,7 +231,7 @@ class Columns extends Component {
                                     classnames(
                                         elementClassName,
                                         {
-                                            positionOutside: childrenStyles && childrenStyles[child.props.id].position === 'fixed',
+                                            positionOutside: childrenStyles && childrenStyles[child.props.id].shouldPositionOutside,
                                         },
                                     )
                                 }
@@ -445,17 +423,13 @@ Columns.defaultProps = {
 export default Columns;
 
 type UpdateStylesFunc = (ChildStyle[], Array<string | number>) => ChildStyle[];
-export const updateRightSideStyles: UpdateStylesFunc = (oldChildrenStyles, newChildrenIds) => {
-    const wasLastRemoved = newChildrenIds.indexOf(
-        oldChildrenStyles[oldChildrenStyles.length - 1]
-    ) < 0;
+export const updateTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, newChildrenIds) => {
     const oldChildrenIds = oldChildrenStyles.map(c => c.id);
-    const didAddNewElements = oldChildrenIds.indexOf(
-        newChildrenIds[newChildrenIds.length - 1]
-    ) < 0;
-    return wasLastRemoved
+    const shouldCleanTail = didRemoveTailElements(newChildrenIds, oldChildrenIds);
+    const shouldAddNewElements = didAddTailElements(newChildrenIds, oldChildrenIds);
+    return shouldCleanTail
         ? cleanTailChildrenStyles(oldChildrenStyles, newChildrenIds)
-        : didAddNewElements
+        : shouldAddNewElements
             ? addNewTailChildrenStyles(oldChildrenStyles, oldChildrenIds, newChildrenIds)
             : oldChildrenStyles;
 };
@@ -520,7 +494,7 @@ export const addNewTailChildrenStyles: AddNewChildrenStylesFunc = (oldChildrenSt
     return oldChildrenStyles.concat(newChildrenStyles);
 };
 
-export const updateLeftSideStyles: UpdateStylesFunc = (oldChildrenStyles, newChildrenIds) => {
+export const updateHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, newChildrenIds) => {
     const wasFirstRemoved = newChildrenIds.indexOf(oldChildrenStyles[0]) < 0;
     const oldChildrenIds = oldChildrenStyles.map(c => c.id);
     const didAddNewElements = oldChildrenIds.indexOf(newChildrenIds[0]) < 0;
@@ -580,7 +554,7 @@ export const addNewHeadChildrenStyles: AddNewChildrenStylesFunc = (oldChildrenSt
                             {
                                 id: newChildId,
                                 shouldCalculatePosition: true,
-                                className: 'fixed-position-outside'
+                                shouldPositionOutside: true
                             }
                         ]
                     }
@@ -588,4 +562,20 @@ export const addNewHeadChildrenStyles: AddNewChildrenStylesFunc = (oldChildrenSt
         reduceDefaultValue
     );
     return newChildrenStyles.concat(oldChildrenStyles);
+};
+
+export const didRemoveTailElements = (newChildrenIds, oldChildrenIds) => {
+    return newChildrenIds.indexOf(
+        oldChildrenIds[oldChildrenIds.length - 1]
+    ) < 0;
+};
+
+export const didAddTailElements = (newChildrenIds, oldChildrenIds) => {
+    return oldChildrenIds.indexOf(
+        newChildrenIds[newChildrenIds.length - 1]
+    ) < 0;
+};
+
+export const didRemoveHeadElements = (newChildrenIds, oldChildrenIds) => {
+    return newChildrenIds.indexOf(oldChildrenIds[0]) < 0
 };

@@ -1,4 +1,9 @@
-import { cleanTailChildrenStyles, addNewTailChildrenStyles } from './ColumnsComponent';
+import {
+    cleanTailChildrenStyles,
+    addNewTailChildrenStyles,
+    cleanHeadChildrenStyles,
+    addNewHeadChildrenStyles
+} from './ColumnsComponent';
 
 const getChildrenStylesForAmount = (amount, mapper = x => x, idIncrement = 0) => Array(amount)
     .fill(null)
@@ -15,7 +20,7 @@ describe('cleanTailChildrenStyles', () => {
 });
 
 describe('addNewTailChildrenStyles', () => {
-    it('should addd 3 more elements to the end', () => {
+    it('should add 3 more elements to the end', () => {
         const oldChildrenStyles = getChildrenStylesForAmount(6);
         const expectedChildrenStyles = oldChildrenStyles
             .concat(getChildrenStylesForAmount(
@@ -31,5 +36,47 @@ describe('addNewTailChildrenStyles', () => {
             newChildrenIds,
         );
         expect(actualNewChildrenStyles).toEqual(expectedChildrenStyles);
+    });
+});
+
+describe('cleanHeadChildrenStyles', () => {
+    it('should remove 2 elements from the head of children styles', () => {
+        const oldChildrenStyles = getChildrenStylesForAmount(9);
+        const expectedChildrenStyles = getChildrenStylesForAmount(
+            7,
+            x => x,
+            2
+        );
+        const newChildrenIds = expectedChildrenStyles.map(x => x.id);
+        const actualNewChildrenStyles = cleanHeadChildrenStyles(oldChildrenStyles, newChildrenIds);
+        expect(expectedChildrenStyles).toEqual(actualNewChildrenStyles);
+    });
+});
+
+describe('addNewHeadChildrenStyles', () => {
+    it('should add 3 elements from the head of children styles', () => {
+        const oldChildrenStyles = [{ id: 3, left: 100 }, { id: 4, left: 100 }, { id: 5, left: 100 }];
+        const oldChildrenIds = oldChildrenStyles.map(x => x.id);
+        const expectedChildrenStyles = [
+            {
+                id: 0,
+                shouldCalculatePosition: true,
+                className: 'fixed-position-outside'
+            },
+            {
+                id: 1,
+                shouldCalculatePosition: true,
+                className: 'fixed-position-outside'
+            },
+            {
+                id: 2,
+                shouldCalculatePosition: true,
+                className: 'fixed-position-outside'
+            },
+            { id: 3, left: 100 }, { id: 4, left: 100 }, { id: 5, left: 100 }
+        ];
+        const newChildrenIds = expectedChildrenStyles.map(x => x.id);
+        const actualNewChildrenStyles = addNewHeadChildrenStyles(oldChildrenStyles, oldChildrenIds, newChildrenIds);
+        expect(expectedChildrenStyles).toEqual(actualNewChildrenStyles);
     });
 });

@@ -455,7 +455,9 @@ export const updateRightSideStyles: UpdateStylesFunc = (oldChildrenStyles, newCh
     ) < 0;
     return wasLastRemoved
         ? cleanTailChildrenStyles(oldChildrenStyles, newChildrenIds)
-        : addNewTailChildrenStyles(oldChildrenStyles, oldChildrenIds, newChildrenIds)
+        : didAddNewElements
+            ? addNewTailChildrenStyles(oldChildrenStyles, oldChildrenIds, newChildrenIds)
+            : oldChildrenStyles;
 };
 
 type ReduceDefaultValue = {
@@ -516,4 +518,74 @@ export const addNewTailChildrenStyles: AddNewChildrenStylesFunc = (oldChildrenSt
         reduceDefaultValue
     );
     return oldChildrenStyles.concat(newChildrenStyles);
+};
+
+export const updateLeftSideStyles: UpdateStylesFunc = (oldChildrenStyles, newChildrenIds) => {
+    const wasFirstRemoved = newChildrenIds.indexOf(oldChildrenStyles[0]) < 0;
+    const oldChildrenIds = oldChildrenStyles.map(c => c.id);
+    const didAddNewElements = oldChildrenIds.indexOf(newChildrenIds[0]) < 0;
+    return wasFirstRemoved
+        ? cleanHeadChildrenStyles(oldChildrenStyles, newChildrenIds)
+        : didAddNewElements
+            ? addNewHeadChildrenStyles(oldChildrenStyles, oldChildrenIds, newChildrenIds)
+            : oldChildrenStyles;
+};
+
+export const cleanHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, newChildrenIds) => {
+    const reduceDefaultValue: ReduceDefaultValue = {
+        shouldSkipChecks: false,
+        resultChildrenStyles: []
+    };
+    const { resultChildrenStyles } = oldChildrenStyles.reduce(
+        ({ resultChildrenStyles, shouldSkipChecks }, childStyles) => (
+            shouldSkipChecks || newChildrenIds.includes(childStyles.id)
+                ? {
+                    shouldSkipChecks: true,
+                    resultChildrenStyles: [...resultChildrenStyles, childStyles]
+                }
+                : {
+                    resultChildrenStyles,
+                    shouldSkipChecks: false
+                }
+        ),
+        reduceDefaultValue
+    );
+
+    return resultChildrenStyles;
+};
+
+export const addNewHeadChildrenStyles: AddNewChildrenStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
+    const reduceDefaultValue: ReduceDefaultValue = {
+        shouldSkipChecks: false,
+        resultChildrenStyles: []
+    };
+
+    const { resultChildrenStyles: newChildrenStyles } = newChildrenIds.reduce(
+        (
+            {
+                resultChildrenStyles,
+                shouldSkipChecks
+            },
+            newChildId
+        ) => (
+                shouldSkipChecks || oldChildrenIds.includes(newChildId)
+                    ? {
+                        shouldSkipChecks: true,
+                        resultChildrenStyles
+                    }
+                    : {
+                        shouldSkipChecks: false,
+                        resultChildrenStyles: [
+                            ...resultChildrenStyles,
+                            {
+                                id: newChildId,
+                                shouldCalculatePosition: true,
+                                className: 'fixed-position-outside'
+                            }
+                        ]
+                    }
+        ),
+        reduceDefaultValue
+    );
+    return newChildrenStyles.concat(oldChildrenStyles);
 };

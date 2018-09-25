@@ -8,8 +8,10 @@ import FocusableComponent from '../FocusableComponent';
 import WithPointer from '../WithPointer';
 import './style.css';
 
+type Id = number | string;
+
 type ChildStyle = {
-    id: number | string,
+    id: Id,
     left?: number,
     right?: number,
     shouldCalculatePosition?: boolean
@@ -163,13 +165,16 @@ class Columns extends Component {
                     .map(() => React.createRef()),
             };
             const newChildrenIds = Columns.getChildrenIds(children);
+            const oldChildrenIds = Columns.getChildrenIdsFromChildrenStyles(childrenStyles);
             childrenStylesNewState = {
                 childrenStyles:
                     updateTailChildrenStyles(
                         updateHeadChildrenStyles(
                             childrenStyles,
+                            oldChildrenIds,
                             newChildrenIds,
                         ),
+                        oldChildrenIds,
                         newChildrenIds,
                     ),
             };
@@ -231,7 +236,7 @@ class Columns extends Component {
                                     classnames(
                                         elementClassName,
                                         {
-                                            positionOutside: childrenStyles && childrenStyles[child.props.id].shouldPositionOutside,
+                                            positionOutside: childrenStyles && childrenStyles[index].shouldPositionOutside,
                                         },
                                     )
                                 }
@@ -289,8 +294,8 @@ class Columns extends Component {
         );
     }
 
-    static getChildrenIds(childrenStyles) {
-        return Object.keys(childrenStyles);
+    static getChildrenIdsFromChildrenStyles(childrenStyles: Array<ChildStyle>): Array<string | number> {
+        return childrenStyles.map(c => c.id);
     }
 
     static elementsAddedOnLeft(childrenStyles, children) {
@@ -422,9 +427,8 @@ Columns.defaultProps = {
 
 export default Columns;
 
-type UpdateStylesFunc = (ChildStyle[], Array<string | number>) => ChildStyle[];
-export const updateTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, newChildrenIds) => {
-    const oldChildrenIds = oldChildrenStyles.map(c => c.id);
+type UpdateStylesFunc = (ChildStyle[], Array <Id>, Array<Id>) => ChildStyle[];
+export const updateTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
     const shouldCleanTail = didRemoveTailElements(newChildrenIds, oldChildrenIds);
     const shouldAddNewElements = didAddTailElements(newChildrenIds, oldChildrenIds);
     return shouldCleanTail
@@ -434,11 +438,12 @@ export const updateTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, ne
             : oldChildrenStyles;
 };
 
+type CleanStylesFunc = (ChildStyle[], Array <Id>) => ChildStyle[];
 type ReduceDefaultValue = {
     resultChildrenStyles: ChildStyle[],
     shouldSkipChecks: boolean
 };
-export const cleanTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, newChildrenIds) => {
+export const cleanTailChildrenStyles: CleanStylesFunc = (oldChildrenStyles, newChildrenIds) => {
     const reduceDefaultValue: ReduceDefaultValue = {
         shouldSkipChecks: false,
         resultChildrenStyles: []
@@ -461,8 +466,8 @@ export const cleanTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, new
     return resultChildrenStyles;
 };
 
-type AddNewChildrenStylesFunc = (ChildStyle[], Array < string | number >, Array<string | number>) => ChildStyle[];
-export const addNewTailChildrenStyles: AddNewChildrenStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
+type AddNewChildrenStylesFunc = (ChildStyle[], Array <Id>, Array<Id>) => ChildStyle[];
+export const addNewTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
     const reduceDefaultValue: ReduceDefaultValue = {
         shouldSkipChecks: false,
         resultChildrenStyles: []
@@ -494,10 +499,9 @@ export const addNewTailChildrenStyles: AddNewChildrenStylesFunc = (oldChildrenSt
     return oldChildrenStyles.concat(newChildrenStyles);
 };
 
-export const updateHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, newChildrenIds) => {
-    const wasFirstRemoved = newChildrenIds.indexOf(oldChildrenStyles[0]) < 0;
-    const oldChildrenIds = oldChildrenStyles.map(c => c.id);
-    const didAddNewElements = oldChildrenIds.indexOf(newChildrenIds[0]) < 0;
+export const updateHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
+    const wasFirstRemoved = didRemoveHeadElements(newChildrenIds, oldChildrenIds);
+    const didAddNewElements = didAddHeadElements(newChildrenIds, oldChildrenIds);
     return wasFirstRemoved
         ? cleanHeadChildrenStyles(oldChildrenStyles, newChildrenIds)
         : didAddNewElements
@@ -505,7 +509,7 @@ export const updateHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, ne
             : oldChildrenStyles;
 };
 
-export const cleanHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, newChildrenIds) => {
+export const cleanHeadChildrenStyles: CleanStylesFunc = (oldChildrenStyles, newChildrenIds) => {
     const reduceDefaultValue: ReduceDefaultValue = {
         shouldSkipChecks: false,
         resultChildrenStyles: []
@@ -528,7 +532,7 @@ export const cleanHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, new
     return resultChildrenStyles;
 };
 
-export const addNewHeadChildrenStyles: AddNewChildrenStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
+export const addNewHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
     const reduceDefaultValue: ReduceDefaultValue = {
         shouldSkipChecks: false,
         resultChildrenStyles: []
@@ -564,18 +568,23 @@ export const addNewHeadChildrenStyles: AddNewChildrenStylesFunc = (oldChildrenSt
     return newChildrenStyles.concat(oldChildrenStyles);
 };
 
-export const didRemoveTailElements = (newChildrenIds, oldChildrenIds) => {
+type checkArrayModificationFunc = (Array<Id>, Array<Id>) => boolean;
+export const didRemoveTailElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => {
     return newChildrenIds.indexOf(
         oldChildrenIds[oldChildrenIds.length - 1]
     ) < 0;
 };
 
-export const didAddTailElements = (newChildrenIds, oldChildrenIds) => {
+export const didAddTailElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => {
     return oldChildrenIds.indexOf(
         newChildrenIds[newChildrenIds.length - 1]
     ) < 0;
 };
 
-export const didRemoveHeadElements = (newChildrenIds, oldChildrenIds) => {
+export const didRemoveHeadElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => {
     return newChildrenIds.indexOf(oldChildrenIds[0]) < 0
+};
+
+export const didAddHeadElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => {
+    return oldChildrenIds.indexOf(newChildrenIds[0]) < 0;
 };

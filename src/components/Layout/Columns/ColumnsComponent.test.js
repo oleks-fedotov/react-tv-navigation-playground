@@ -5,14 +5,17 @@ import {
     addNewHeadChildrenStyles,
     didRemoveTailElements,
     didAddTailElements,
-    updateTailChildrenStyles
+    updateTailChildrenStyles,
+    didRemoveHeadElements,
+    didAddHeadElements,
+    updateHeadChildrenStyles,
 } from './ColumnsComponent';
 
 const getChildrenStylesForAmount = (amount, mapper = x => x, idIncrement = 0) => Array(amount)
     .fill(null)
     .map((child, index) => (mapper({ id: index + idIncrement, left: 100 })));
 
-describe('cleanTailChildrenStyles', () => {
+describe('cleanTailChildrenStyles()', () => {
     it('should remove 3 last elements', () => {
         const oldChildrenStyles = getChildrenStylesForAmount(9);
         const expectedChildrenStyles = getChildrenStylesForAmount(6);
@@ -22,7 +25,7 @@ describe('cleanTailChildrenStyles', () => {
     });
 });
 
-describe('addNewTailChildrenStyles', () => {
+describe('addNewTailChildrenStyles()', () => {
     it('should add 3 more elements to the end', () => {
         const oldChildrenStyles = getChildrenStylesForAmount(6);
         const expectedChildrenStyles = oldChildrenStyles
@@ -42,21 +45,24 @@ describe('addNewTailChildrenStyles', () => {
     });
 });
 
-describe('cleanHeadChildrenStyles', () => {
+describe('cleanHeadChildrenStyles()', () => {
     it('should remove 2 elements from the head of children styles', () => {
         const oldChildrenStyles = getChildrenStylesForAmount(9);
         const expectedChildrenStyles = getChildrenStylesForAmount(
             7,
             x => x,
-            2
+            2,
         );
         const newChildrenIds = expectedChildrenStyles.map(x => x.id);
-        const actualNewChildrenStyles = cleanHeadChildrenStyles(oldChildrenStyles, newChildrenIds);
+        const actualNewChildrenStyles = cleanHeadChildrenStyles(
+            oldChildrenStyles,
+            newChildrenIds,
+        );
         expect(expectedChildrenStyles).toEqual(actualNewChildrenStyles);
     });
 });
 
-describe('addNewHeadChildrenStyles', () => {
+describe('addNewHeadChildrenStyles()', () => {
     it('should add 3 elements from the head of children styles', () => {
         const oldChildrenStyles = [{ id: 3, left: 100 }, { id: 4, left: 100 }, { id: 5, left: 100 }];
         const oldChildrenIds = oldChildrenStyles.map(x => x.id);
@@ -64,69 +70,145 @@ describe('addNewHeadChildrenStyles', () => {
             {
                 id: 0,
                 shouldCalculatePosition: true,
-                shouldPositionOutside: true
+                shouldPositionOutside: true,
             },
             {
                 id: 1,
                 shouldCalculatePosition: true,
-                shouldPositionOutside: true
+                shouldPositionOutside: true,
             },
             {
                 id: 2,
                 shouldCalculatePosition: true,
-                shouldPositionOutside: true
+                shouldPositionOutside: true,
             },
-            { id: 3, left: 100 }, { id: 4, left: 100 }, { id: 5, left: 100 }
+            { id: 3, left: 100 }, { id: 4, left: 100 }, { id: 5, left: 100 },
         ];
         const newChildrenIds = expectedChildrenStyles.map(x => x.id);
-        const actualNewChildrenStyles = addNewHeadChildrenStyles(oldChildrenStyles, oldChildrenIds, newChildrenIds);
+        const actualNewChildrenStyles = addNewHeadChildrenStyles(
+            oldChildrenStyles,
+            oldChildrenIds,
+            newChildrenIds,
+        );
         expect(expectedChildrenStyles).toEqual(actualNewChildrenStyles);
     });
 });
 
-describe('updateTailChildrenStyles', () => {
+describe('updateTailChildrenStyles()', () => {
     it('should remove 2 elements from the tail', () => {
         const oldChildrenStyles = [
             { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 },
-            { id: 3, left: 100 }, { id: 4, left: 100 }, { id: 5, left: 100 }
+            { id: 3, left: 100 }, { id: 4, left: 100 }, { id: 5, left: 100 },
         ];
         const expectedChildrenStyles = [
-            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 }
+            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 },
         ];
         const newChildrenIds = expectedChildrenStyles.map(c => c.id);
-        const actualChildrenStyles = updateTailChildrenStyles(oldChildrenStyles, newChildrenIds);
+        const oldChildrenIds = oldChildrenStyles.map(c => c.id);
+        const actualChildrenStyles = updateTailChildrenStyles(
+            oldChildrenStyles,
+            oldChildrenIds,
+            newChildrenIds,
+        );
         expect(actualChildrenStyles).toEqual(expectedChildrenStyles);
     });
 
     it('should add 3 elements from the tail', () => {
         const oldChildrenStyles = [
-            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 }
+            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 },
         ];
         const expectedChildrenStyles = [
             { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 },
             { id: 3, shouldCalculatePosition: true },
             { id: 4, shouldCalculatePosition: true },
-            { id: 5, shouldCalculatePosition: true, }
+            { id: 5, shouldCalculatePosition: true },
         ];
         const newChildrenIds = expectedChildrenStyles.map(c => c.id);
-        const actualChildrenStyles = updateTailChildrenStyles(oldChildrenStyles, newChildrenIds);
+        const oldChildrenIds = oldChildrenStyles.map(c => c.id);
+        const actualChildrenStyles = updateTailChildrenStyles(
+            oldChildrenStyles,
+            oldChildrenIds,
+            newChildrenIds,
+        );
         expect(actualChildrenStyles).toEqual(expectedChildrenStyles);
     });
 
     it('should not change the input children styles', () => {
         const oldChildrenStyles = [
-            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 }
+            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 },
         ];
         const expectedChildrenStyles = [
-            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 }
+            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 },
         ];
         const newChildrenIds = expectedChildrenStyles.map(c => c.id);
-        const actualChildrenStyles = updateTailChildrenStyles(oldChildrenStyles, newChildrenIds);
+        const oldChildrenIds = oldChildrenStyles.map(c => c.id);
+        const actualChildrenStyles = updateTailChildrenStyles(
+            oldChildrenStyles,
+            oldChildrenIds,
+            newChildrenIds,
+        );
         expect(actualChildrenStyles).toEqual(expectedChildrenStyles);
     });
 });
 
-describe('didRemoveTailElements', () => {
+describe('updateHeadChildrenStyles()', () => {
+    it('should remove 3 elements from the head', () => {
+        const oldChildrenStyles = [
+            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 },
+            { id: 3, left: 100 }, { id: 4, left: 100 }, { id: 5, left: 100 },
+        ];
+        const expectedChildrenStyles = [
+            { id: 3, left: 100 }, { id: 4, left: 100 }, { id: 5, left: 100 },
+        ];
+        const newChildrenIds = expectedChildrenStyles.map(c => c.id);
+        const oldChildrenIds = oldChildrenStyles.map(c => c.id);
+        const actualChildrenStyles = updateHeadChildrenStyles(
+            oldChildrenStyles,
+            oldChildrenIds,
+            newChildrenIds,
+        );
+        expect(actualChildrenStyles).toEqual(expectedChildrenStyles);
+    });
+
+    it('should add 3 elements from the head', () => {
+        const oldChildrenStyles = [
+            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 },
+        ];
+        const expectedChildrenStyles = [
+            { id: 3, shouldCalculatePosition: true, shouldPositionOutside: true },
+            { id: 4, shouldCalculatePosition: true, shouldPositionOutside: true },
+            { id: 5, shouldCalculatePosition: true, shouldPositionOutside: true },
+            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 },
+        ];
+        const newChildrenIds = expectedChildrenStyles.map(c => c.id);
+        const oldChildrenIds = oldChildrenStyles.map(c => c.id);
+        const actualChildrenStyles = updateHeadChildrenStyles(
+            oldChildrenStyles,
+            oldChildrenIds,
+            newChildrenIds,
+        );
+        expect(actualChildrenStyles).toEqual(expectedChildrenStyles);
+    });
+
+    it('should not change the input children styles', () => {
+        const oldChildrenStyles = [
+            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 },
+        ];
+        const expectedChildrenStyles = [
+            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 },
+        ];
+        const newChildrenIds = expectedChildrenStyles.map(c => c.id);
+        const oldChildrenIds = oldChildrenStyles.map(c => c.id);
+        const actualChildrenStyles = updateHeadChildrenStyles(
+            oldChildrenStyles,
+            oldChildrenIds,
+            newChildrenIds,
+        );
+        expect(actualChildrenStyles).toEqual(expectedChildrenStyles);
+    });
+});
+
+describe('didRemoveTailElements()', () => {
     it('should return true when element were removed from the tail', () => {
         const oldChildrenIds = [0, 1, 2, 3, 4, 5, 6, 7];
         const newChildrenIds = [0, 1, 2, 3, 4];
@@ -145,7 +227,7 @@ describe('didRemoveTailElements', () => {
     });
 });
 
-describe('didAddTailElements', () => {
+describe('didAddTailElements()', () => {
     it('should return true when element were added to the tail', () => {
         const oldChildrenIds = [0, 1, 2, 3, 4];
         const newChildrenIds = [0, 1, 2, 3, 4, 5, 6, 7];
@@ -161,5 +243,44 @@ describe('didAddTailElements', () => {
     it('should return false when elements remained unchanged', () => {
         const newChildrenIds = [0, 1, 2, 3, 4, 5, 6, 7];
         expect(didAddTailElements(newChildrenIds, newChildrenIds)).toBe(false);
+    });
+});
+
+describe('didRemoveHeadElements()', () => {
+    it('should return true when element were removed from the head', () => {
+        const oldChildrenIds = [0, 1, 2, 3, 4, 5, 6, 7];
+        const newChildrenIds = [4, 5, 6, 7];
+        expect(didRemoveHeadElements(newChildrenIds, oldChildrenIds)).toBe(true);
+    });
+
+    it('should return false when element were added from the head', () => {
+        const oldChildrenIds = [3, 4];
+        const newChildrenIds = [0, 1, 2, 3, 4];
+        expect(didRemoveHeadElements(newChildrenIds, oldChildrenIds)).toBe(false);
+    });
+
+    it('should return false when elements remained unchanged', () => {
+        const newChildrenIds = [0, 1, 2, 3, 4, 5, 6, 7];
+        expect(didRemoveHeadElements(newChildrenIds, newChildrenIds)).toBe(false);
+    });
+});
+
+describe('didAddHeadElements()', () => {
+    it('should return true if new elements were added from the head', () => {
+        const oldChildrenIds = [3, 4, 5, 6, 7];
+        const newChildrenIds = [0, 1, 2, 3, 4, 5, 6, 7];
+        expect(didAddHeadElements(newChildrenIds, oldChildrenIds)).toBe(true);
+    });
+
+    it('should return false if new elements were removed from the head', () => {
+        const oldChildrenIds = [0, 1, 2, 3, 4, 5, 6, 7];
+        const newChildrenIds = [4, 5, 6, 7];
+        expect(didAddHeadElements(newChildrenIds, oldChildrenIds)).toBe(false);
+    });
+
+    it('should return false if elements remained the same', () => {
+        const oldChildrenIds = [0, 1, 2, 3, 4, 5, 6, 7];
+        const newChildrenIds = [0, 1, 2, 3, 4, 5, 6, 7];
+        expect(didAddHeadElements(newChildrenIds, oldChildrenIds)).toBe(false);
     });
 });

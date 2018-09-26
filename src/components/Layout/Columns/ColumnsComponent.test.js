@@ -9,6 +9,7 @@ import {
     didRemoveHeadElements,
     didAddHeadElements,
     updateHeadChildrenStyles,
+    shiftElementLeft,
 } from './ColumnsComponent';
 
 const getChildrenStylesForAmount = (amount, mapper = x => x, idIncrement = 0) => Array(amount)
@@ -47,12 +48,19 @@ describe('addNewTailChildrenStyles()', () => {
 
 describe('cleanHeadChildrenStyles()', () => {
     it('should remove 2 elements from the head of children styles', () => {
-        const oldChildrenStyles = getChildrenStylesForAmount(9);
-        const expectedChildrenStyles = getChildrenStylesForAmount(
-            7,
-            x => x,
-            2,
-        );
+        const oldChildrenStyles = [
+            { id: 0, left: 0, right: 100 }, { id: 1, left: 100, right: 200 },
+            { id: 2, left: 200, right: 300 }, { id: 3, left: 300, right: 400 },
+            { id: 4, left: 400, right: 500 }, { id: 5, left: 500, right: 600 },
+            { id: 6, left: 600, right: 700 }, { id: 7, left: 700, right: 800 },
+            { id: 8, left: 800, right: 900 },
+        ];
+        const expectedChildrenStyles = [
+            { id: 2, left: 0, right: 100 }, { id: 3, left: 100, right: 200 },
+            { id: 4, left: 200, right: 300 }, { id: 5, left: 300, right: 400 },
+            { id: 6, left: 400, right: 500 }, { id: 7, left: 500, right: 600 },
+            { id: 8, left: 600, right: 700 },
+        ];
         const newChildrenIds = expectedChildrenStyles.map(x => x.id);
         const actualNewChildrenStyles = cleanHeadChildrenStyles(
             oldChildrenStyles,
@@ -154,11 +162,11 @@ describe('updateTailChildrenStyles()', () => {
 describe('updateHeadChildrenStyles()', () => {
     it('should remove 3 elements from the head', () => {
         const oldChildrenStyles = [
-            { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 },
-            { id: 3, left: 100 }, { id: 4, left: 100 }, { id: 5, left: 100 },
+            { id: 0, left: 0, right: 200 }, { id: 1, left: 200, right: 300 }, { id: 2, left: 300, right: 400 },
+            { id: 3, left: 400, right: 500 }, { id: 4, left: 500, right: 600 }, { id: 5, left: 600, right: 700 },
         ];
         const expectedChildrenStyles = [
-            { id: 3, left: 100 }, { id: 4, left: 100 }, { id: 5, left: 100 },
+            { id: 3, left: 0, right: 100 }, { id: 4, left: 100, right: 200 }, { id: 5, left: 200, right: 300 },
         ];
         const newChildrenIds = expectedChildrenStyles.map(c => c.id);
         const oldChildrenIds = oldChildrenStyles.map(c => c.id);
@@ -196,6 +204,24 @@ describe('updateHeadChildrenStyles()', () => {
         ];
         const expectedChildrenStyles = [
             { id: 0, left: 100 }, { id: 1, left: 100 }, { id: 2, left: 100 },
+        ];
+        const newChildrenIds = expectedChildrenStyles.map(c => c.id);
+        const oldChildrenIds = oldChildrenStyles.map(c => c.id);
+        const actualChildrenStyles = updateHeadChildrenStyles(
+            oldChildrenStyles,
+            oldChildrenIds,
+            newChildrenIds,
+        );
+        expect(actualChildrenStyles).toEqual(expectedChildrenStyles);
+    });
+
+    it('should remove 3 first elements and update left/right props of 4,5,6 elements in the array by the right value of the 3 element (e.g. shift all element more to the left)', () => {
+        const oldChildrenStyles = [
+            { id: 0, left: 0, right: 100 }, { id: 1, left: 100, right: 200 }, { id: 2, left: 200, right: 300 },
+            { id: 3, left: 300, right: 400 }, { id: 4, left: 400, right: 500 }, { id: 5, left: 500, right: 600 },
+        ];
+        const expectedChildrenStyles = [
+            { id: 3, left: 0, right: 100 }, { id: 4, left: 100, right: 200 }, { id: 5, left: 200, right: 300 },
         ];
         const newChildrenIds = expectedChildrenStyles.map(c => c.id);
         const oldChildrenIds = oldChildrenStyles.map(c => c.id);
@@ -282,5 +308,37 @@ describe('didAddHeadElements()', () => {
         const oldChildrenIds = [0, 1, 2, 3, 4, 5, 6, 7];
         const newChildrenIds = [0, 1, 2, 3, 4, 5, 6, 7];
         expect(didAddHeadElements(newChildrenIds, oldChildrenIds)).toBe(false);
+    });
+});
+
+describe('shiftElementLeft', () => {
+    it('should reduce left property of the object by 100', () => {
+        const childStyles = {
+            id: 1,
+            left: 200,
+        };
+        const shift = 100;
+        const updatedStyles = shiftElementLeft(childStyles, shift);
+        expect(updatedStyles.left).toBe(100);
+    });
+
+    it('should reduce left property of the object by 300', () => {
+        const childStyles = {
+            id: 1,
+            left: 600,
+        };
+        const shift = 300;
+        const updatedStyles = shiftElementLeft(childStyles, shift);
+        expect(updatedStyles.left).toBe(300);
+    });
+
+    it('should reduce right property of the object by 100', () => {
+        const childStyles = {
+            id: 1,
+            right: 200,
+        };
+        const shift = 100;
+        const updatedStyles = shiftElementLeft(childStyles, shift);
+        expect(updatedStyles.right).toBe(100);
     });
 });

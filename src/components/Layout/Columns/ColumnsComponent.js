@@ -446,21 +446,21 @@ type ReduceDefaultValue = {
 export const cleanTailChildrenStyles: CleanStylesFunc = (oldChildrenStyles, newChildrenIds) => {
     const reduceDefaultValue: ReduceDefaultValue = {
         shouldSkipChecks: false,
-        resultChildrenStyles: []
+        resultChildrenStyles: [],
     };
     const { resultChildrenStyles } = oldChildrenStyles.reduceRight(
         ({ resultChildrenStyles, shouldSkipChecks }, childStyles) => (
             shouldSkipChecks || newChildrenIds.includes(childStyles.id)
                 ? {
                     shouldSkipChecks: true,
-                    resultChildrenStyles: [childStyles, ...resultChildrenStyles]
+                    resultChildrenStyles: [childStyles, ...resultChildrenStyles],
                 }
                 : {
                     resultChildrenStyles,
-                    shouldSkipChecks: false
+                    shouldSkipChecks: false,
                 }
         ),
-        reduceDefaultValue
+        reduceDefaultValue,
     );
 
     return resultChildrenStyles;
@@ -470,31 +470,31 @@ type AddNewChildrenStylesFunc = (ChildStyle[], Array <Id>, Array<Id>) => ChildSt
 export const addNewTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
     const reduceDefaultValue: ReduceDefaultValue = {
         shouldSkipChecks: false,
-        resultChildrenStyles: []
+        resultChildrenStyles: [],
     };
 
     const { resultChildrenStyles: newChildrenStyles } = newChildrenIds.reduceRight(
         (
             {
                 resultChildrenStyles,
-                shouldSkipChecks
+                shouldSkipChecks,
             },
-            newChildId
+            newChildId,
         ) => (
-                shouldSkipChecks || oldChildrenIds.includes(newChildId)
-                    ? {
-                        shouldSkipChecks: true,
-                        resultChildrenStyles
-                    }
-                    : {
-                        shouldSkipChecks: false,
-                        resultChildrenStyles: [
-                            { id: newChildId, shouldCalculatePosition: true },
-                            ...resultChildrenStyles
-                        ]
-                    }
+            shouldSkipChecks || oldChildrenIds.includes(newChildId)
+                ? {
+                    shouldSkipChecks: true,
+                    resultChildrenStyles,
+                }
+                : {
+                    shouldSkipChecks: false,
+                    resultChildrenStyles: [
+                        { id: newChildId, shouldCalculatePosition: true },
+                        ...resultChildrenStyles,
+                    ],
+                }
         ),
-        reduceDefaultValue
+        reduceDefaultValue,
     );
     return oldChildrenStyles.concat(newChildrenStyles);
 };
@@ -512,79 +512,83 @@ export const updateHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, ol
 export const cleanHeadChildrenStyles: CleanStylesFunc = (oldChildrenStyles, newChildrenIds) => {
     const reduceDefaultValue: ReduceDefaultValue = {
         shouldSkipChecks: false,
-        resultChildrenStyles: []
+        resultChildrenStyles: [],
+        shiftLeftAccumulator: 0,
     };
-    const { resultChildrenStyles } = oldChildrenStyles.reduce(
-        ({ resultChildrenStyles, shouldSkipChecks }, childStyles) => (
+    const { resultChildrenStyles: updatedChildrenStyles } = oldChildrenStyles.reduce(
+        ({ resultChildrenStyles, shouldSkipChecks, shiftLeftAccumulator }, childStyles) => (
             shouldSkipChecks || newChildrenIds.includes(childStyles.id)
                 ? {
+                    shiftLeftAccumulator,
                     shouldSkipChecks: true,
-                    resultChildrenStyles: [...resultChildrenStyles, childStyles]
+                    resultChildrenStyles: [
+                        ...resultChildrenStyles,
+                        shiftElementLeft(childStyles, shiftLeftAccumulator),
+                    ],
                 }
                 : {
                     resultChildrenStyles,
-                    shouldSkipChecks: false
+                    shouldSkipChecks: false,
+                    shiftLeftAccumulator: childStyles.right,
                 }
         ),
-        reduceDefaultValue
+        reduceDefaultValue,
     );
 
-    return resultChildrenStyles;
+    return updatedChildrenStyles;
 };
+
+export const shiftElementLeft = ({ left, right, ...rest }, shift) => ({
+    ...rest,
+    left: left - shift,
+    right: right - shift,
+});
 
 export const addNewHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
     const reduceDefaultValue: ReduceDefaultValue = {
         shouldSkipChecks: false,
-        resultChildrenStyles: []
+        resultChildrenStyles: [],
     };
 
     const { resultChildrenStyles: newChildrenStyles } = newChildrenIds.reduce(
         (
             {
                 resultChildrenStyles,
-                shouldSkipChecks
+                shouldSkipChecks,
             },
-            newChildId
+            newChildId,
         ) => (
-                shouldSkipChecks || oldChildrenIds.includes(newChildId)
-                    ? {
-                        shouldSkipChecks: true,
-                        resultChildrenStyles
-                    }
-                    : {
-                        shouldSkipChecks: false,
-                        resultChildrenStyles: [
-                            ...resultChildrenStyles,
-                            {
-                                id: newChildId,
-                                shouldCalculatePosition: true,
-                                shouldPositionOutside: true
-                            }
-                        ]
-                    }
+            shouldSkipChecks || oldChildrenIds.includes(newChildId)
+                ? {
+                    shouldSkipChecks: true,
+                    resultChildrenStyles,
+                }
+                : {
+                    shouldSkipChecks: false,
+                    resultChildrenStyles: [
+                        ...resultChildrenStyles,
+                        {
+                            id: newChildId,
+                            shouldCalculatePosition: true,
+                            shouldPositionOutside: true,
+                        },
+                    ],
+                }
         ),
-        reduceDefaultValue
+        reduceDefaultValue,
     );
     return newChildrenStyles.concat(oldChildrenStyles);
 };
 
 type checkArrayModificationFunc = (Array<Id>, Array<Id>) => boolean;
-export const didRemoveTailElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => {
-    return newChildrenIds.indexOf(
-        oldChildrenIds[oldChildrenIds.length - 1]
-    ) < 0;
-};
+export const didRemoveTailElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => newChildrenIds.indexOf(
+    oldChildrenIds[oldChildrenIds.length - 1],
+) < 0;
 
-export const didAddTailElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => {
-    return oldChildrenIds.indexOf(
-        newChildrenIds[newChildrenIds.length - 1]
-    ) < 0;
-};
+export const didAddTailElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => oldChildrenIds.indexOf(
+    newChildrenIds[newChildrenIds.length - 1],
+) < 0;
 
-export const didRemoveHeadElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => {
-    return newChildrenIds.indexOf(oldChildrenIds[0]) < 0
-};
+export const didRemoveHeadElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => newChildrenIds.indexOf(oldChildrenIds[0]) < 0;
 
-export const didAddHeadElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => {
-    return oldChildrenIds.indexOf(newChildrenIds[0]) < 0;
-};
+export const didAddHeadElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => oldChildrenIds.indexOf(newChildrenIds[0]) < 0;

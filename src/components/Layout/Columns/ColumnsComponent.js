@@ -59,7 +59,7 @@ class Columns extends Component {
         }
         if (Columns.didChildrenMount(this.state.refs)) {
             this.setState({
-                childrenStyles: Columns.getChildrenStyles(this.state.refs),
+                childrenStyles: getInitialChildrenStyles(this.state.refs),
             });
         }
     }
@@ -73,62 +73,15 @@ class Columns extends Component {
 
         if (this.state.childrenChanged) {
             const currentContainerOffset = this.state.offsetLeft;
-            const { childrenStyles: newChildrenStyles } = this.state.refs.reduce(
-                (
-                    {
-                        accumulatorWidth,
-                        childrenStyles,
-                    },
-                    {
-                        current: childRef,
-                    },
-                ) => {
-                    const id = childRef.props.childId;
-                    const childStyles = childrenStyles[id];
-                    if (childStyles.shouldUpdateAfterRender) {
-                        // left child (beginning of the lane)
-                        if (childStyles.position === 'fixed') {
-                            return {
-                                accumulatorWidth: accumulatorWidth + Columns.getElementWidth(childRef),
-                                childrenStyles: {
-                                    ...childrenStyles,
-                                    [id]: {
-                                        left: accumulatorWidth,
-                                    },
-                                },
-                            };
-                        }
-                        // right child (end of the lane)
-                        return {
-                            // no need to keep accumulatorWidth anymore, as it was needed
-                            // only for left elements and update existing elements offset
-                            childrenStyles: {
-                                ...childrenStyles,
-                                [id]: {
-                                    left: currentContainerOffset + Columns.getElementLeft(childRef),
-                                },
-                            },
-                        };
-                    }
-                    return {
-                        // keep accumulatorWidth as a reference, how much to shift previously existing elements
-                        accumulatorWidth,
-                        childrenStyles: {
-                            ...childrenStyles,
-                            [id]: {
-                                left: childrenStyles[id].left + accumulatorWidth,
-                            },
-                        },
-                    };
-                },
-                {
-                    accumulatorWidth: 0,
-                    childrenStyles: this.state.childrenStyles,
-                },
+            const newChildrenStyles = recalculateChildrenStyles(
+                this.state.refs,
+                this.state.childrenStyles,
+                currentContainerOffset,
             );
             this.setState({
                 offsetLeft: Columns.getContainerLeftOffset(newChildrenStyles, this.props.focusedComponent),
                 childrenStyles: newChildrenStyles,
+                childrenChanged: false,
             });
         }
 
@@ -277,21 +230,6 @@ class Columns extends Component {
             OTransform: offsetStyle,
             transform: offsetStyle,
         };
-    }
-
-    static getChildrenStyles(childrenRefs) {
-        return childrenRefs.reduce(
-            (childIdMap, { current: childRef }) => {
-                const { childId } = childRef.props;
-                return {
-                    ...childIdMap,
-                    [childId]: {
-                        left: Columns.getElementLeft(childRef),
-                    },
-                };
-            },
-            {},
-        );
     }
 
     static getChildrenIdsFromChildrenStyles(childrenStyles: Array<ChildStyle>): Array<string | number> {
@@ -592,3 +530,73 @@ export const didAddTailElements: checkArrayModificationFunc = (newChildrenIds, o
 export const didRemoveHeadElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => newChildrenIds.indexOf(oldChildrenIds[0]) < 0;
 
 export const didAddHeadElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => oldChildrenIds.indexOf(newChildrenIds[0]) < 0;
+
+export const getInitialChildrenStyles = (childrenRefs: Array<React.ElementRef>) => childrenRefs.map(
+    ({ current: childRef }) => ({
+        id: childRef.props.childId,
+        ...getElementLeftRight(childRef),
+    }),
+);
+
+export const getElementLeftRight = (elementRef: React.ElementRef): { left: Number, right: Number } => {
+    const element = ReactDOM.findDOMNode(elementRef);
+    const elementRect = element.getBoundingClientRect();
+    return {
+        left: elementRect.left,
+        right: elementRect.right,
+    };
+};
+
+export const recalculateChildrenStyles = (
+    childrenRefs: Array<React.ElementRef>,
+    childrenStyles: Array<ChildStyle>,
+    positionShift: Number,
+) => {
+    const { updatedChildrenStyles: result } = childrenRefs.reduce(
+        ({ accumulatedWidth, updatedChildrenStyles }, childRef, index) => {
+            const childStyles = childrenStyles[index];
+            if (childStyles.shouldUpdateAfterRender) {
+                const recalculatedChildStyles = getRecalculatedChildStyle(
+                    childRef,
+                    childStyles,
+                    positionShift,
+                );
+                return {
+                    accumulatedWidth: recalculatedChildStyles.right,
+                    updatedChildrenStyles: [...updatedChildrenStyles, recalculatedChildStyles],
+                };
+            }
+            return {
+                accumulatedWidth,
+                updatedChildrenStyles: [
+                    ...updatedChildrenStyles,
+                    shiftElementRight(childStyles, accumulatedWidth),
+                ],
+            };
+        },
+        {
+            accumulatedWidth: 0,
+            updatedChildrenStyles: [],
+        },
+    );
+    return result;
+};
+
+export const getRecalculatedChildStyle = (
+    childRef,
+    { shouldPositionOutside, shouldUpdateAfterRender, ...rest },
+    shift,
+) => {
+    const { left, right } = getElementLeftRight(childRef);
+    return {
+        ...rest,
+        left: left + shift,
+        right: right + shift,
+    };
+};
+
+export const shiftElementRight = (childStyles, shift) => ({
+    ...childStyles,
+    left: childStyles.left + shift,
+    right: childStyles.right + shift,
+});

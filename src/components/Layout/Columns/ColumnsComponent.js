@@ -218,7 +218,8 @@ class Columns extends Component {
 
     static getContainerLeftOffset(childrenStyles, focusedComponentRef) {
         const focusedId = focusedComponentRef.props.childId;
-        return childrenStyles[focusedId].left;
+        const focusedIndex = childrenStyles.findIndex((childStyles) => childStyles.id === focusedId);
+        return childrenStyles[focusedIndex].left;
     }
 
     static getLeftOffsetStyleForScroll(offsetLeftValue) {

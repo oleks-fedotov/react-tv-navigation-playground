@@ -550,7 +550,7 @@ export const getElementLeftRight = (elementRef: React.ElementRef): { left: Numbe
 };
 
 export const recalculateChildrenStyles = (
-    childrenRefs: Array<React.ElementRef>,
+    childrenRefs: Array<{ current: React.ElementRef }>,
     childrenStyles: Array<ChildStyle>,
     positionShift: Number,
 ) => {

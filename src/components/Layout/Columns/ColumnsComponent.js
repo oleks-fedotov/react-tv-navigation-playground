@@ -14,7 +14,7 @@ type ChildStyle = {
     id: Id,
     left?: number,
     right?: number,
-    shouldCalculatePosition?: boolean
+    shouldCalculatePositionAfterRender?: boolean
 };
 
 class Columns extends Component {
@@ -70,7 +70,6 @@ class Columns extends Component {
             this.props.focusElement(this.state.refs[indexToFocus].current);
             return;
         }
-
         if (this.state.childrenChanged) {
             const currentContainerOffset = this.state.offsetLeft;
             const newChildrenStyles = recalculateChildrenStyles(
@@ -100,6 +99,7 @@ class Columns extends Component {
         let offsetNewState = null;
         let childrenRefsNewState = null;
         let childrenStylesNewState = null;
+        let childrenChanged = false;
 
         if (oldFocusedComponent !== focusedComponent
             && focusedComponent
@@ -110,6 +110,7 @@ class Columns extends Component {
         }
 
         if (Columns.didChildrenChange(refs, children)) {
+            childrenChanged = true;
             const amountOfChildren = children.length;
             childrenRefsNewState = {
                 amountOfChildren,
@@ -133,12 +134,12 @@ class Columns extends Component {
             };
         }
 
-        return offsetNewState || childrenRefsNewState
+        return offsetNewState || childrenChanged
             ? {
                 ...offsetNewState,
                 ...childrenRefsNewState,
                 focusedComponent,
-                childrenChanged: !!childrenRefsNewState,
+                childrenChanged,
                 ...childrenStylesNewState,
             }
             : null;
@@ -428,7 +429,7 @@ export const addNewTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, ol
                 : {
                     shouldSkipChecks: false,
                     resultChildrenStyles: [
-                        { id: newChildId, shouldCalculatePosition: true },
+                        { id: newChildId, shouldCalculatePositionAfterRender: true },
                         ...resultChildrenStyles,
                     ],
                 }
@@ -508,7 +509,7 @@ export const addNewHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, ol
                         ...resultChildrenStyles,
                         {
                             id: newChildId,
-                            shouldCalculatePosition: true,
+                            shouldCalculatePositionAfterRender: true,
                             shouldPositionOutside: true,
                         },
                     ],
@@ -554,9 +555,9 @@ export const recalculateChildrenStyles = (
     positionShift: Number,
 ) => {
     const { updatedChildrenStyles: result } = childrenRefs.reduce(
-        ({ accumulatedWidth, updatedChildrenStyles }, childRef, index) => {
+        ({ accumulatedWidth, updatedChildrenStyles }, { current: childRef }, index) => {
             const childStyles = childrenStyles[index];
-            if (childStyles.shouldUpdateAfterRender) {
+            if (childStyles.shouldCalculatePositionAfterRender) {
                 const recalculatedChildStyles = getRecalculatedChildStyle(
                     childRef,
                     childStyles,
@@ -585,7 +586,7 @@ export const recalculateChildrenStyles = (
 
 export const getRecalculatedChildStyle = (
     childRef,
-    { shouldPositionOutside, shouldUpdateAfterRender, ...rest },
+    { shouldPositionOutside, shouldCalculatePositionAfterRender, ...rest },
     shift,
 ) => {
     const { left, right } = getElementLeftRight(childRef);

@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import classnames from 'classnames';
+import get from 'lodash/get';
 import { componentDidGetFocused } from '../../../utils/focusUtils';
 import FocusableComponent from '../FocusableComponent';
 import WithPointer from '../WithPointer';
@@ -71,11 +72,9 @@ class Columns extends Component {
             return;
         }
         if (this.state.childrenChanged) {
-            const currentContainerOffset = this.state.offsetLeft;
             const newChildrenStyles = recalculateChildrenStyles(
                 this.state.refs,
                 this.state.childrenStyles,
-                currentContainerOffset,
             );
             this.setState({
                 offsetLeft: Columns.getContainerLeftOffset(newChildrenStyles, this.props.focusedComponent),
@@ -109,7 +108,7 @@ class Columns extends Component {
             };
         }
 
-        if (Columns.didChildrenChange(refs, children)) {
+        if (didChildrenChange(refs, children)) {
             childrenChanged = true;
             const amountOfChildren = children.length;
             childrenRefsNewState = {
@@ -219,7 +218,7 @@ class Columns extends Component {
 
     static getContainerLeftOffset(childrenStyles, focusedComponentRef) {
         const focusedId = focusedComponentRef.props.childId;
-        const focusedIndex = childrenStyles.findIndex((childStyles) => childStyles.id === focusedId);
+        const focusedIndex = childrenStyles.findIndex(childStyles => childStyles.id === focusedId);
         return childrenStyles[focusedIndex].left;
     }
 
@@ -249,10 +248,6 @@ class Columns extends Component {
             && childrenRefs.length
             && childrenRefs[0]
             && childrenRefs[0].current;
-    }
-
-    static didChildrenChange(prevRefs, newChildren) {
-        return prevRefs.length !== newChildren.length;
     }
 }
 
@@ -304,11 +299,11 @@ export default Columns;
 
 type UpdateStylesFunc = (ChildStyle[], Array <Id>, Array<Id>) => ChildStyle[];
 export const updateTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
-    const shouldCleanTail = didRemoveTailElements(newChildrenIds, oldChildrenIds);
-    const shouldAddNewElements = didAddTailElements(newChildrenIds, oldChildrenIds);
-    return shouldCleanTail
+    const shouldCleanTailStyles = didRemoveTailElements(newChildrenIds, oldChildrenIds);
+    const shouldAddTailStyles = didAddTailElements(newChildrenIds, oldChildrenIds);
+    return shouldCleanTailStyles
         ? cleanTailChildrenStyles(oldChildrenStyles, newChildrenIds)
-        : shouldAddNewElements
+        : shouldAddTailStyles
             ? addNewTailChildrenStyles(oldChildrenStyles, oldChildrenIds, newChildrenIds)
             : oldChildrenStyles;
 };
@@ -375,11 +370,12 @@ export const addNewTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, ol
 };
 
 export const updateHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
-    const wasFirstRemoved = didRemoveHeadElements(newChildrenIds, oldChildrenIds);
-    const didAddNewElements = didAddHeadElements(newChildrenIds, oldChildrenIds);
-    return wasFirstRemoved
+    const shouldCleanHeadStyles = didRemoveHeadElements(newChildrenIds, oldChildrenIds);
+    const shouldAddHeadStyles = didAddHeadElements(newChildrenIds, oldChildrenIds);
+
+    return shouldCleanHeadStyles
         ? cleanHeadChildrenStyles(oldChildrenStyles, newChildrenIds)
-        : didAddNewElements
+        : shouldAddHeadStyles
             ? addNewHeadChildrenStyles(oldChildrenStyles, oldChildrenIds, newChildrenIds)
             : oldChildrenStyles;
 };
@@ -413,7 +409,7 @@ export const cleanHeadChildrenStyles: CleanStylesFunc = (oldChildrenStyles, newC
     return updatedChildrenStyles;
 };
 
-export const shiftElementLeft = ({ left, right, ...rest }, shift) => ({
+export const shiftElementLeft = ({ left, right, ...rest }: ChildStyle, shift: number) => ({
     ...rest,
     left: left - shift,
     right: right - shift,
@@ -475,7 +471,7 @@ export const getInitialChildrenStyles = (childrenRefs: Array<React.ElementRef>) 
     }),
 );
 
-export const getElementLeftRight = (elementRef: React.ElementRef): { left: Number, right: Number } => {
+export const getElementLeftRight = (elementRef: React.ElementRef): { left: number, right: number } => {
     const element = ReactDOM.findDOMNode(elementRef);
     const elementRect = element.getBoundingClientRect();
     return {
@@ -487,7 +483,7 @@ export const getElementLeftRight = (elementRef: React.ElementRef): { left: Numbe
 export const recalculateChildrenStyles = (
     childrenRefs: Array<{ current: React.ElementRef }>,
     childrenStyles: Array<ChildStyle>,
-    positionShift: Number,
+    positionShift: number = 0,
 ) => {
     const { updatedChildrenStyles: result } = childrenRefs.reduce(
         ({ accumulatedWidth, updatedChildrenStyles }, { current: childRef }, index) => {
@@ -520,20 +516,24 @@ export const recalculateChildrenStyles = (
 };
 
 export const getRecalculatedChildStyle = (
-    childRef,
-    { shouldPositionOutside, shouldCalculatePositionAfterRender, ...rest },
-    shift,
+    childRef: React.ElementRef<typeof FocusableComponent>,
+    { shouldPositionOutside, shouldCalculatePositionAfterRender, ...rest } : ChildStyle,
+    shift: number,
 ) => {
     const { left, right } = getElementLeftRight(childRef);
     return {
         ...rest,
-        left: left + shift,
-        right: right + shift,
+        left: left - shift,
+        right: right - shift,
     };
 };
 
-export const shiftElementRight = (childStyles, shift) => ({
+export const shiftElementRight = (childStyles: ChildStyle, shift: number) => ({
     ...childStyles,
     left: childStyles.left + shift,
     right: childStyles.right + shift,
 });
+
+export const didChildrenChange = (prevRefs, newChildren) => prevRefs[0].current
+        && (get(prevRefs, '[0].current.props.childId') !== newChildren[0].props.id
+        || get(prevRefs, `[${prevRefs.length - 1}].current.props.childId`) !== newChildren[newChildren.length - 1].props.id);

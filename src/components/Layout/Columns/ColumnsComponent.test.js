@@ -10,6 +10,7 @@ import {
     didAddHeadElements,
     updateHeadChildrenStyles,
     shiftElementLeft,
+    didChildrenChange,
 } from './ColumnsComponent';
 
 const getChildrenStylesForAmount = (amount, mapper = x => x, idIncrement = 0) => Array(amount)
@@ -340,5 +341,51 @@ describe('shiftElementLeft', () => {
         const shift = 100;
         const updatedStyles = shiftElementLeft(childStyles, shift);
         expect(updatedStyles.right).toBe(100);
+    });
+});
+
+describe.only('didChildrenChange()', () => {
+    it('should return false, when prevRefs is current values are still null', () => {
+        const prevRefs = [{
+            current: null,
+        }];
+        const newChildren = [{
+            props: {
+                id: 1,
+            },
+        }];
+        expect(didChildrenChange(prevRefs, newChildren)).toBeFalsy();
+    });
+
+    it('should return false, when prevRefs first/last element ids equal to first/last newChildren ids', () => {
+        const prevRefs = [{
+            current: {
+                props: {
+                    id: 1,
+                },
+            },
+        }];
+        const newChildren = [{
+            props: {
+                id: 1,
+            },
+        }];
+        expect(didChildrenChange(prevRefs, newChildren)).toBeFalsy();
+    });
+
+    it('should return false, when prevRefs first/last element ids equal to first/last newChildren ids', () => {
+        const prevRefs = [{
+            current: {
+                props: {
+                    id: 1,
+                },
+            },
+        }];
+        const newChildren = [{
+            props: {
+                id: 2,
+            },
+        }];
+        expect(didChildrenChange(prevRefs, newChildren)).toBeTruthy();
     });
 });

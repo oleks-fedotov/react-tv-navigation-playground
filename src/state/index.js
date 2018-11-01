@@ -1,16 +1,16 @@
 import { combineReducers, createStore, applyMiddleware } from 'redux';
+import loggerMiddleware from 'redux-logger';
 import navigation from './navigationReducer';
 import pointer from './pointerSupportReducer';
 
-import loggerMiddleware from 'redux-logger'
 import navigationMiddleware from './navigationMiddleware';
 
 const globalState = combineReducers({
     navigation,
-    pointer
+    pointer,
 });
 
 export default createStore(
     globalState,
-    applyMiddleware(loggerMiddleware, navigationMiddleware)
+    applyMiddleware(loggerMiddleware, navigationMiddleware),
 );

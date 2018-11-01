@@ -1,4 +1,3 @@
-import { shrinkHorizontalRange } from './../../../utils/rangeUtils';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -6,6 +5,7 @@ import {
     getIncreaseRangeOnLeft,
     getIncreaseRangeOnRight,
     isRangeDifferent,
+    shrinkHorizontalRange,
 } from '../../../utils/rangeUtils';
 
 class LazyCollectionRenderer extends PureComponent {
@@ -38,7 +38,7 @@ class LazyCollectionRenderer extends PureComponent {
     }
 
     renderElementsForRange(rangeStart, rangeEnd) {
-        setTimeout(() => { 
+        setTimeout(() => {
             const { getElementsDataForRange } = this.props;
             const dataObjects = getElementsDataForRange(
                 rangeStart,
@@ -58,7 +58,7 @@ class LazyCollectionRenderer extends PureComponent {
             minVisibleAmountOnRight,
             minVisibleAmountOnLeft,
             totalAmount,
-            shrinkRange
+            shrinkRange,
         } = this.props;
 
         const {
@@ -84,17 +84,22 @@ class LazyCollectionRenderer extends PureComponent {
                     getIncreaseRangeOnLeft(rangeStart, rangeEnd, minVisibleAmountOnLeft),
                     {
                         leftBuffer: minVisibleAmountOnLeft,
-                        rightBuffer: minVisibleAmountOnRight
+                        rightBuffer: minVisibleAmountOnRight,
                     },
-                    -1
+                    -1,
                 )
                 : shrinkRange(
-                    getIncreaseRangeOnRight(rangeStart, rangeEnd, minVisibleAmountOnRight, totalAmount),
+                    getIncreaseRangeOnRight(
+                        rangeStart,
+                        rangeEnd,
+                        minVisibleAmountOnRight,
+                        totalAmount,
+                    ),
                     {
                         leftBuffer: minVisibleAmountOnLeft,
-                        rightBuffer: minVisibleAmountOnRight
+                        rightBuffer: minVisibleAmountOnRight,
                     },
-                    1
+                    1,
                 );
 
             const shouldRerenderElements = isRangeDifferent(
@@ -162,7 +167,7 @@ LazyCollectionRenderer.propTypes = {
     navigationLeft: PropTypes.node,
     navigationRight: PropTypes.node,
 
-    shrinkRange: PropTypes.func
+    shrinkRange: PropTypes.func,
 };
 
 LazyCollectionRenderer.defaultProps = {
@@ -171,7 +176,7 @@ LazyCollectionRenderer.defaultProps = {
     minVisibleAmountOnLeft: 5,
     minVisibleAmountOnRight: 5,
 
-    shrinkRange: shrinkHorizontalRange
+    shrinkRange: shrinkHorizontalRange,
 };
 
 export default LazyCollectionRenderer;

@@ -11,6 +11,7 @@ import {
     updateHeadChildrenStyles,
     shiftElementLeft,
     didChildrenChange,
+    __RewireAPI__ as ColumnComponentRewire,
 } from './ColumnsComponent';
 
 const getChildrenStylesForAmount = (amount, mapper = x => x, idIncrement = 0) => Array(amount)
@@ -73,7 +74,11 @@ describe('cleanHeadChildrenStyles()', () => {
 
 describe('addNewHeadChildrenStyles()', () => {
     it('should add 3 elements from the head of children styles', () => {
-        const oldChildrenStyles = [{ id: 3, left: 100 }, { id: 4, left: 100 }, { id: 5, left: 100 }];
+        const oldChildrenStyles = [
+            { id: 3, left: 100 },
+            { id: 4, left: 100 },
+            { id: 5, left: 100 },
+        ];
         const oldChildrenIds = oldChildrenStyles.map(x => x.id);
         const expectedChildrenStyles = [
             {
@@ -163,11 +168,14 @@ describe('updateTailChildrenStyles()', () => {
 describe('updateHeadChildrenStyles()', () => {
     it('should remove 3 elements from the head', () => {
         const oldChildrenStyles = [
-            { id: 0, left: 0, right: 200 }, { id: 1, left: 200, right: 300 }, { id: 2, left: 300, right: 400 },
-            { id: 3, left: 400, right: 500 }, { id: 4, left: 500, right: 600 }, { id: 5, left: 600, right: 700 },
+            { id: 0, left: 0, right: 200 }, { id: 1, left: 200, right: 300 },
+            { id: 2, left: 300, right: 400 }, { id: 3, left: 400, right: 500 },
+            { id: 4, left: 500, right: 600 }, { id: 5, left: 600, right: 700 },
         ];
         const expectedChildrenStyles = [
-            { id: 3, left: 0, right: 100 }, { id: 4, left: 100, right: 200 }, { id: 5, left: 200, right: 300 },
+            { id: 3, left: 0, right: 100 },
+            { id: 4, left: 100, right: 200 },
+            { id: 5, left: 200, right: 300 },
         ];
         const newChildrenIds = expectedChildrenStyles.map(c => c.id);
         const oldChildrenIds = oldChildrenStyles.map(c => c.id);
@@ -218,11 +226,14 @@ describe('updateHeadChildrenStyles()', () => {
 
     it('should remove 3 first elements and update left/right props of 4,5,6 elements in the array by the right value of the 3 element (e.g. shift all element more to the left)', () => {
         const oldChildrenStyles = [
-            { id: 0, left: 0, right: 100 }, { id: 1, left: 100, right: 200 }, { id: 2, left: 200, right: 300 },
-            { id: 3, left: 300, right: 400 }, { id: 4, left: 400, right: 500 }, { id: 5, left: 500, right: 600 },
+            { id: 0, left: 0, right: 100 }, { id: 1, left: 100, right: 200 },
+            { id: 2, left: 200, right: 300 }, { id: 3, left: 300, right: 400 },
+            { id: 4, left: 400, right: 500 }, { id: 5, left: 500, right: 600 },
         ];
         const expectedChildrenStyles = [
-            { id: 3, left: 0, right: 100 }, { id: 4, left: 100, right: 200 }, { id: 5, left: 200, right: 300 },
+            { id: 3, left: 0, right: 100 },
+            { id: 4, left: 100, right: 200 },
+            { id: 5, left: 200, right: 300 },
         ];
         const newChildrenIds = expectedChildrenStyles.map(c => c.id);
         const oldChildrenIds = oldChildrenStyles.map(c => c.id);
@@ -392,6 +403,7 @@ describe('didChildrenChange()', () => {
 
 describe.only('recalculateChildrenStyles()', () => {
     it('should work', () => {
-        jest.fn('getRecalculatedChildStyle');
+        expect(ColumnComponentRewire.__get__('getRecalculatedChildStyle')).toBeTruthy();
+        // jest.fn('getRecalculatedChildStyle');
     });
 });

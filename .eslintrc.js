@@ -4,10 +4,11 @@ module.exports = {
         "browser": true,
         "node": true,
         "es6": true,
+        "jest/globals": true,
     },
     "extends": [
         "airbnb-base",
-        "plugin:react/recommended"
+        "plugin:react/recommended",
     ],
     "rules": {
         // Indent with 4 spaces
@@ -18,6 +19,9 @@ module.exports = {
 
         // Indent props with 4 spaces
         "react/jsx-indent-props": ["error", 4],
+        "no-nested-ternary": "off",
+        "no-use-before-define": "off",
+        "react/no-find-dom-node": "off"
     },
-    "plugins": ["react", "flowtype"]
+    "plugins": ["react", "flowtype", "eslint-plugin-jest", "jest"]
 };

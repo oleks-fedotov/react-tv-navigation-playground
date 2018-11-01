@@ -36,6 +36,7 @@ class Rows extends Component {
     }
 
     getLastFocusedIndex = () => this.focusedIndex;
+
     saveFocusedIndex = (focusedIndex) => { this.focusedIndex = focusedIndex; }
 
     static getDerivedStateFromProps({ children }, { refs }) {
@@ -102,6 +103,7 @@ Rows.propTypes = {
     navigationDown: PropTypes.node,
     navigationLeft: PropTypes.node,
     navigationRight: PropTypes.node,
+    focusedComponent: PropTypes.node,
     focusedIndex: PropTypes.number,
     defaultFocusedIndex: PropTypes.number,
     isFocused: PropTypes.bool,
@@ -117,6 +119,7 @@ Rows.defaultProps = {
     navigationDown: null,
     navigationLeft: null,
     navigationRight: null,
+    focusedComponent: null,
     focusedIndex: -1,
     defaultFocusedIndex: 0,
     isFocused: false,

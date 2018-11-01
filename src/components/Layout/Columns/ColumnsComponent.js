@@ -1,4 +1,3 @@
-/** @flow */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
@@ -77,8 +76,12 @@ class Columns extends Component {
                 this.state.childrenStyles,
                 this.state.offsetLeft,
             );
+            const newOffsetLeft = Columns.getContainerLeftOffset(
+                newChildrenStyles,
+                this.props.focusedComponent,
+            );
             this.setState({
-                offsetLeft: Columns.getContainerLeftOffset(newChildrenStyles, this.props.focusedComponent),
+                offsetLeft: newOffsetLeft,
                 childrenStyles: newChildrenStyles,
                 childrenChanged: false,
             });
@@ -187,12 +190,16 @@ class Columns extends Component {
                                     classnames(
                                         elementClassName,
                                         {
-                                            positionOutside: childrenStyles && childrenStyles[index].shouldPositionOutside,
+                                            positionOutside: childrenStyles
+                                                && childrenStyles[index].shouldPositionOutside,
                                         },
                                     )
                                 }
                                 ref={refs[index]}
-                                hasDefaultFocus={withDefaultFocus ? defaultFocusedIndex === index : false}
+                                hasDefaultFocus={withDefaultFocus
+                                    ? defaultFocusedIndex === index
+                                    : false
+                                }
                                 navigationUp={parentNavigationUp}
                                 navigationDown={parentNavigationDown}
                                 navigationLeft={index > 0
@@ -231,7 +238,8 @@ class Columns extends Component {
         };
     }
 
-    static getChildrenIdsFromChildrenStyles(childrenStyles: Array<ChildStyle>): Array<string | number> {
+    static getChildrenIdsFromChildrenStyles(childrenStyles: Array<ChildStyle>)
+        : Array<string | number> {
         return childrenStyles.map(c => c.id);
     }
 
@@ -295,18 +303,7 @@ Columns.defaultProps = {
 
 export default Columns;
 
-type UpdateStylesFunc = (ChildStyle[], Array <Id>, Array<Id>) => ChildStyle[];
-export const updateTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
-    const shouldCleanTailStyles = didRemoveTailElements(newChildrenIds, oldChildrenIds);
-    const shouldAddTailStyles = didAddTailElements(newChildrenIds, oldChildrenIds);
-    return shouldCleanTailStyles
-        ? cleanTailChildrenStyles(oldChildrenStyles, newChildrenIds)
-        : shouldAddTailStyles
-            ? addNewTailChildrenStyles(oldChildrenStyles, oldChildrenIds, newChildrenIds)
-            : oldChildrenStyles;
-};
-
-type CleanStylesFunc = (ChildStyle[], Array <Id>) => ChildStyle[];
+type CleanStylesFunc = (ChildStyle[], Array<Id>) => ChildStyle[];
 type ReduceDefaultValue = {
     resultChildrenStyles: ChildStyle[],
     shouldSkipChecks: boolean
@@ -316,7 +313,7 @@ export const cleanTailChildrenStyles: CleanStylesFunc = (oldChildrenStyles, newC
         shouldSkipChecks: false,
         resultChildrenStyles: [],
     };
-    const { resultChildrenStyles } = oldChildrenStyles.reduceRight(
+    const { resultChildrenStyles: newChildrenStyles } = oldChildrenStyles.reduceRight(
         ({ resultChildrenStyles, shouldSkipChecks }, childStyles) => (
             shouldSkipChecks || newChildrenIds.includes(childStyles.id)
                 ? {
@@ -331,11 +328,14 @@ export const cleanTailChildrenStyles: CleanStylesFunc = (oldChildrenStyles, newC
         reduceDefaultValue,
     );
 
-    return resultChildrenStyles;
+    return newChildrenStyles;
 };
 
-type AddNewChildrenStylesFunc = (ChildStyle[], Array <Id>, Array<Id>) => ChildStyle[];
-export const addNewTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
+export const addNewTailChildrenStyles: UpdateStylesFunc = (
+    oldChildrenStyles,
+    oldChildrenIds,
+    newChildrenIds,
+) => {
     const reduceDefaultValue: ReduceDefaultValue = {
         shouldSkipChecks: false,
         resultChildrenStyles: [],
@@ -367,7 +367,26 @@ export const addNewTailChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, ol
     return oldChildrenStyles.concat(newChildrenStyles);
 };
 
-export const updateHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
+type UpdateStylesFunc = (ChildStyle[], Array <Id>, Array<Id>) => ChildStyle[];
+export const updateTailChildrenStyles: UpdateStylesFunc = (
+    oldChildrenStyles,
+    oldChildrenIds,
+    newChildrenIds,
+) => {
+    const shouldCleanTailStyles = didRemoveTailElements(newChildrenIds, oldChildrenIds);
+    const shouldAddTailStyles = didAddTailElements(newChildrenIds, oldChildrenIds);
+    return shouldCleanTailStyles
+        ? cleanTailChildrenStyles(oldChildrenStyles, newChildrenIds)
+        : shouldAddTailStyles
+            ? addNewTailChildrenStyles(oldChildrenStyles, oldChildrenIds, newChildrenIds)
+            : oldChildrenStyles;
+};
+
+export const updateHeadChildrenStyles: UpdateStylesFunc = (
+    oldChildrenStyles,
+    oldChildrenIds,
+    newChildrenIds,
+) => {
     const shouldCleanHeadStyles = didRemoveHeadElements(newChildrenIds, oldChildrenIds);
     const shouldAddHeadStyles = didAddHeadElements(newChildrenIds, oldChildrenIds);
 
@@ -413,7 +432,11 @@ export const shiftElementLeft = ({ left, right, ...rest }: ChildStyle, shift: nu
     right: right - shift,
 });
 
-export const addNewHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, oldChildrenIds, newChildrenIds) => {
+export const addNewHeadChildrenStyles: UpdateStylesFunc = (
+    oldChildrenStyles,
+    oldChildrenIds,
+    newChildrenIds,
+) => {
     const reduceDefaultValue: ReduceDefaultValue = {
         shouldSkipChecks: false,
         resultChildrenStyles: [],
@@ -450,17 +473,29 @@ export const addNewHeadChildrenStyles: UpdateStylesFunc = (oldChildrenStyles, ol
 };
 
 type checkArrayModificationFunc = (Array<Id>, Array<Id>) => boolean;
-export const didRemoveTailElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => newChildrenIds.indexOf(
+export const didRemoveTailElements: checkArrayModificationFunc = (
+    newChildrenIds,
+    oldChildrenIds,
+) => newChildrenIds.indexOf(
     oldChildrenIds[oldChildrenIds.length - 1],
 ) < 0;
 
-export const didAddTailElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => oldChildrenIds.indexOf(
+export const didAddTailElements: checkArrayModificationFunc = (
+    newChildrenIds,
+    oldChildrenIds,
+) => oldChildrenIds.indexOf(
     newChildrenIds[newChildrenIds.length - 1],
 ) < 0;
 
-export const didRemoveHeadElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => newChildrenIds.indexOf(oldChildrenIds[0]) < 0;
+export const didRemoveHeadElements: checkArrayModificationFunc = (
+    newChildrenIds,
+    oldChildrenIds,
+) => newChildrenIds.indexOf(oldChildrenIds[0]) < 0;
 
-export const didAddHeadElements: checkArrayModificationFunc = (newChildrenIds, oldChildrenIds) => oldChildrenIds.indexOf(newChildrenIds[0]) < 0;
+export const didAddHeadElements: checkArrayModificationFunc = (
+    newChildrenIds,
+    oldChildrenIds,
+) => oldChildrenIds.indexOf(newChildrenIds[0]) < 0;
 
 export const getInitialChildrenStyles = (childrenRefs: Array<React.ElementRef>) => childrenRefs.map(
     ({ current: childRef }) => ({
@@ -469,7 +504,9 @@ export const getInitialChildrenStyles = (childrenRefs: Array<React.ElementRef>) 
     }),
 );
 
-export const getElementLeftRight = (elementRef: React.ElementRef): { left: number, right: number } => {
+export const getElementLeftRight = (
+    elementRef: React.ElementRef,
+): { left: number, right: number } => {
     const element = ReactDOM.findDOMNode(elementRef);
     const elementRect = element.getBoundingClientRect();
     return {

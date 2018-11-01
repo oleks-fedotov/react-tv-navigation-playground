@@ -1,6 +1,7 @@
 import range from 'lodash/range';
 import uniqueId from 'lodash/uniqueId';
 
+// eslint-disable-next-line
 export const getDataSource = (datasetSize) => {
     const data = range(datasetSize + 1)
         .map(elementNumber => ({

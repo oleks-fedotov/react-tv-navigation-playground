@@ -22,6 +22,7 @@ class App extends Component {
         store.dispatch({ type: APPLICATION_START });
     }
 
+    // eslint-disable-next-line
     render() {
         return (
             <Provider store={store}>
@@ -38,19 +39,16 @@ class App extends Component {
                                 >
                                     {children}
                                 </Rows>
-                            )
+                            ),
                         )}
                         ElementRender={rowsElementRender}
                         getElementsDataForRange={
-                            getRowsDataGenerator
-                                ('columns')
-                                (20)
-                                (totalAmountOfElementsInRow)
+                            getRowsDataGenerator('columns')(20)(totalAmountOfElementsInRow)
                         }
                         totalAmount={totalAmountOfRows}
                         minVisibleAmountOnRight={5}
                     >
-                        
+
                     </LazyCollectionRenderer>
                 </Scroll>
             </Provider>
@@ -69,21 +67,21 @@ const rowsElementRender = ({
     initialRenderAmount,
     initialFocusedIndex,
     minVisibleAmountOnRight,
-    ...restProps,
+    ...restProps
 }) => (
     <LazyCollectionRenderer
-            key={key}
-            CollectionComponentRender={CollectionComponentRender}
-            ElementRender={ElementRender}
-            getElementsDataForRange={getElementsDataForRange}
-            totalAmount={totalAmount}
-            initialFocusedIndex={initialFocusedIndex}
-            minVisibleAmountOnRight={minVisibleAmountOnRight}
-            {...restProps}
+        key={key}
+        CollectionComponentRender={CollectionComponentRender}
+        ElementRender={ElementRender}
+        getElementsDataForRange={getElementsDataForRange}
+        totalAmount={totalAmount}
+        initialFocusedIndex={initialFocusedIndex}
+        minVisibleAmountOnRight={minVisibleAmountOnRight}
+        {...restProps}
     />
 );
 
-const getRowsDataGenerator = rowKeyPrefix => numberOfRows => numberOfElementsInRow => {
+const getRowsDataGenerator = rowKeyPrefix => numberOfRows => (numberOfElementsInRow) => {
     const rows = Array(numberOfRows)
         .fill(0)
         .map((_, index) => (
@@ -106,6 +104,7 @@ const getRowsDataGenerator = rowKeyPrefix => numberOfRows => numberOfElementsInR
                         </Columns>
                     ),
                 ),
+                // eslint-disable-next-line
                 ElementRender: ({ id, title, isFocused }) => (
                     <Widget
                         id={id}
@@ -120,7 +119,7 @@ const getRowsDataGenerator = rowKeyPrefix => numberOfRows => numberOfElementsInR
                 minVisibleAmountOnRight: 5,
             }
         ));
-    
+
     return (rangeStart, rangeEnd) => rows
         .slice(rangeStart, rangeEnd);
 };

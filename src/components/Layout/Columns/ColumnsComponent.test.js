@@ -344,7 +344,7 @@ describe('shiftElementLeft', () => {
     });
 });
 
-describe.only('didChildrenChange()', () => {
+describe('didChildrenChange()', () => {
     it('should return false, when prevRefs is current values are still null', () => {
         const prevRefs = [{
             current: null,
@@ -387,5 +387,11 @@ describe.only('didChildrenChange()', () => {
             },
         }];
         expect(didChildrenChange(prevRefs, newChildren)).toBeTruthy();
+    });
+});
+
+describe.only('recalculateChildrenStyles()', () => {
+    it('should work', () => {
+        jest.fn('getRecalculatedChildStyle');
     });
 });

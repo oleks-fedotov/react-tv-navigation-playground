@@ -55,7 +55,7 @@ class Columns extends Component {
     componentDidMount() {
         if (this.scrollableContainer.current) {
             this.setState({
-                containerOffsetLeft: this.scrollableContainer.current.offsetLeft,
+                offsetLeft: this.scrollableContainer.current.offsetLeft,
             });
         }
         if (Columns.didChildrenMount(this.state.refs)) {
@@ -75,6 +75,7 @@ class Columns extends Component {
             const newChildrenStyles = recalculateChildrenStyles(
                 this.state.refs,
                 this.state.childrenStyles,
+                this.state.offsetLeft,
             );
             this.setState({
                 offsetLeft: Columns.getContainerLeftOffset(newChildrenStyles, this.props.focusedComponent),
@@ -82,9 +83,6 @@ class Columns extends Component {
                 childrenChanged: false,
             });
         }
-
-        // map over children
-        // if styles have updateAfterRender property then
     }
 
     static getDerivedStateFromProps(
@@ -487,6 +485,8 @@ export const recalculateChildrenStyles = (
 ) => {
     const { updatedChildrenStyles: result } = childrenRefs.reduce(
         ({ accumulatedWidth, updatedChildrenStyles }, { current: childRef }, index) => {
+            // for right element calculate width and add it to the prev elemenent right
+            // for left element put 0, calculate width, increase accumuldatedWidth
             const childStyles = childrenStyles[index];
             if (childStyles.shouldCalculatePositionAfterRender) {
                 const recalculatedChildStyles = getRecalculatedChildStyle(
@@ -523,8 +523,8 @@ export const getRecalculatedChildStyle = (
     const { left, right } = getElementLeftRight(childRef);
     return {
         ...rest,
-        left: left - shift,
-        right: right - shift,
+        left: left + shift,
+        right: right + shift,
     };
 };
 

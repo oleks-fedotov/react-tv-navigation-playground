@@ -13,12 +13,12 @@ class FocusableComponent extends PureComponent {
             navigationUp,
             navigationDown,
             navigationLeft,
-            navigationRight
+            navigationRight,
         } = props;
         if (isFunction(children)) {
             this.state = {
                 componentToRender: children,
-                isChildFunction: true
+                isChildFunction: true,
             };
         } else if (React.Children.only(children)) {
             this.childRef = React.createRef();
@@ -29,11 +29,11 @@ class FocusableComponent extends PureComponent {
                 navigationDown,
                 navigationLeft,
                 navigationRight,
-                ref: this.childRef
+                ref: this.childRef,
             };
             this.state = {
                 componentToRender: React.cloneElement(children, newChildProps),
-                isChildFunction: false
+                isChildFunction: false,
             };
         } else {
             throw new Error('FocusableComponent can have only one child');
@@ -51,15 +51,14 @@ class FocusableComponent extends PureComponent {
             return isChildFunction
                 ? FocusableComponent.updateChildFunction(props)
                 : FocusableComponent.updateChildElement(props);
-        } else {
-            return null;
         }
+        return null;
     }
 
     static updateChildFunction(props) {
         const Child = props.children;
         return {
-            componentToRender: <Child isFocused={props.isFocused} />
+            componentToRender: <Child isFocused={props.isFocused} />,
         };
     }
 
@@ -71,7 +70,7 @@ class FocusableComponent extends PureComponent {
             navigationUp,
             navigationDown,
             navigationLeft,
-            navigationRight
+            navigationRight,
         } = props;
         return {
             componentToRender: React.cloneElement(children, {
@@ -80,9 +79,9 @@ class FocusableComponent extends PureComponent {
                 navigationUp,
                 navigationDown,
                 navigationLeft,
-                navigationRight
-            })
-        }
+                navigationRight,
+            }),
+        };
     }
 
     render() {
@@ -109,7 +108,7 @@ FocusableComponent.defaultProps = {
     navigationUp: null,
     navigationDown: null,
     navigationLeft: null,
-    navigationRight: null
+    navigationRight: null,
 };
 
 export default FocusableComponent;

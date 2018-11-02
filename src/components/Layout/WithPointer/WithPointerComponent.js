@@ -11,7 +11,9 @@ class WithPointer extends PureComponent {
     }
 
     render() {
-        const { onMouseEnter, onMouseLeave, className, isActive } = this.props;
+        const {
+            onMouseEnter, onMouseLeave, className, isActive,
+        } = this.props;
         return (
             <div
                 onMouseEnter={onMouseEnter}
@@ -22,21 +24,23 @@ class WithPointer extends PureComponent {
             >
                 {this.props.children}
             </div>
-        )
+        );
     }
-};
+}
 
 WithPointer.propTypes = {
     children: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf(PropTypes.node)]),
+    className: PropTypes.string,
     onMouseEnter: PropTypes.func.isRequired,
     onMouseLeave: PropTypes.func.isRequired,
     isActive: PropTypes.bool,
-    id: PropTypes.string
+    id: PropTypes.string,
 };
 
 WithPointer.defaultProps = {
+    className: '',
     isActive: false,
-    id: ''
+    id: '',
 };
 
 export default WithPointer;

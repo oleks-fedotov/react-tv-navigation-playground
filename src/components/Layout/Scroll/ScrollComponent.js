@@ -1,4 +1,5 @@
-import React, { PureComponent } from 'react'
+import { PropTypes } from 'prop-types';
+import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 
 class Scroll extends PureComponent {
@@ -8,34 +9,54 @@ class Scroll extends PureComponent {
         this.elementRef = React.createRef();
         this.state = {
             offsetTop: 0,
-            windowHeight: window.innerHeight
+            windowHeight: window.innerHeight,
+            shouldScrollContent: true,
         };
     }
 
     componentDidMount() {
         this.setState({
-            shouldScrollContent: this.elementRef.current.scrollHeight > this.state.windowHeight,
-            maxOffsetTop: this.elementRef.current.scrollHeight - this.state.windowHeight
+            maxOffsetTop: this.elementRef.current.scrollHeight - this.state.windowHeight,
         });
     }
 
-    static getDerivedStateFromProps({ focusedComponent }, { shouldScrollContent, offsetTop, maxOffsetTop, windowHeight }) {
-        if (focusedComponent && shouldScrollContent) {
-            const element = ReactDOM.findDOMNode(focusedComponent)
+    componentDidUpdate() {
+        this.setState({
+            shouldScrollContent: this.elementRef.current.scrollHeight > this.state.windowHeight,
+            maxOffsetTop: this.elementRef.current.scrollHeight - this.state.windowHeight,
+        });
+    }
+
+    static getDerivedStateFromProps(
+        { focusedComponent },
+        {
+            shouldScrollContent,
+            offsetTop,
+            maxOffsetTop,
+            windowHeight,
+            focusedComponent: oldFocusedComponent,
+        },
+    ) {
+        if (focusedComponent !== oldFocusedComponent && shouldScrollContent) {
+            const element = ReactDOM.findDOMNode(focusedComponent);
             const focusedRect = element.getBoundingClientRect();
 
-            const offsetTopDelta = Scroll.getNewScrollPositionOffset(focusedRect.top, focusedRect.height, windowHeight);
+            const offsetTopDelta = Scroll.getNewScrollPositionOffset(
+                focusedRect.top,
+                focusedRect.height,
+                windowHeight,
+            );
             const newOffsetTop = offsetTop + offsetTopDelta;
 
             return {
                 offsetTop: Math.max(
                     0,
-                    Math.min(maxOffsetTop, newOffsetTop)
-                )
+                    Math.min(maxOffsetTop, newOffsetTop),
+                ),
+                focusedComponent,
             };
-        } else {
-            return null;
         }
+        return null;
     }
 
     static getNewScrollPositionOffset(elementAbsoluteTop, elementHeight, windowHeight) {
@@ -51,19 +72,29 @@ class Scroll extends PureComponent {
             MozTransform: offset,
             MsTransform: offset,
             OTransform: offset,
-            transform: offset
+            transform: offset,
         };
     }
 
     render() {
         return (
-            <div ref={this.elementRef} style={{ height: '100%', width: '100%', position: 'absolute', ...Scroll.getElementTransformStyle(this.state.offsetTop) }}>
+            <div
+                ref={this.elementRef}
+                style={{
+                    height: '100%',
+                    width: '100%',
+                    position: 'absolute',
+                    ...Scroll.getElementTransformStyle(this.state.offsetTop),
+                }}
+            >
                 {this.props.children}
             </div>
-        )
+        );
     }
 }
 
-Scroll.propTypes = {};
+Scroll.propTypes = {
+    children: PropTypes.element,
+};
 
 export default Scroll;

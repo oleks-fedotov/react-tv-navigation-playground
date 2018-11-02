@@ -5,10 +5,10 @@ const keyCodesDirectionsMapping = {
     37: 'LEFT',
     38: 'UP',
     39: 'RIGHT',
-    40: 'DOWN'
+    40: 'DOWN',
 };
 
-const middleware = store => next => action => {
+const middleware = store => next => (action) => {
     if (action.type === APPLICATION_START) {
         window.addEventListener(
             'keydown',
@@ -19,7 +19,7 @@ const middleware = store => next => action => {
                     store.dispatch({ type: navigationActionPrefix + direction });
                 }
             },
-            false
+            false,
         );
     } else {
         next(action);

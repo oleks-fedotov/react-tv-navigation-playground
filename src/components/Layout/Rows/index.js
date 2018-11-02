@@ -1,13 +1,18 @@
 import { connect } from 'react-redux';
-import { FOCUS_COMPONENT } from './../../../state/actions';
-import Rows from './RowsComponent.js';
+import { FOCUS_COMPONENT } from '../../../state/actions';
+import Rows from './RowsComponent';
 
-const mapDispatchToProps = dispatch => ({
-    focusElement: component =>
-        dispatch({
-            type: FOCUS_COMPONENT,
-            data: component
-        })
+const mapStateToProps = ({ navigation }, ownProps) => ({
+    focusedComponent: navigation.parentId === ownProps.id
+        ? navigation.focusedComponent
+        : null,
 });
 
-export default connect(null, mapDispatchToProps)(Rows);
+const mapDispatchToProps = dispatch => ({
+    focusElement: component => dispatch({
+        type: FOCUS_COMPONENT,
+        data: component,
+    }),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Rows);

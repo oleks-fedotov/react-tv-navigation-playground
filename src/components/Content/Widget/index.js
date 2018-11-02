@@ -11,22 +11,23 @@ class Widget extends Component {
             <div className={classnames([
                 cx('widget'),
                 this.props.isFocused && cx('focused'),
-                this.props.className
+                this.props.className,
             ])}>
                 {this.props.children}
             </div>
-        )
+        );
     }
-};
+}
 
 Widget.propTypes = {
     isFocused: PropTypes.bool,
-    className: PropTypes.string
+    className: PropTypes.string,
+    children: PropTypes.node,
 };
 
 Widget.defaultProps = {
     isFocused: false,
-    className: ''
+    className: '',
 };
 
 export default Widget;

@@ -518,18 +518,22 @@ export const getElementLeftRight = (
 export const recalculateChildrenStyles = (
     childrenRefs: Array<{ current: React.ElementRef }>,
     childrenStyles: Array<ChildStyle>,
-    positionShift: number = 0,
 ) => {
-    const { updatedChildrenStyles: result } = childrenRefs.reduce(
-        ({ accumulatedWidth, updatedChildrenStyles }, { current: childRef }, index) => {
+    const { updatedChildrenStyles: newChildrenStyles } = childrenRefs.reduce(
+        (
+            { accumulatedWidth, updatedChildrenStyles },
+            { current: childRef },
+            index,
+        ) => {
             // for right element calculate width and add it to the prev elemenent right
             // for left element put 0, calculate width, increase accumuldatedWidth
             const childStyles = childrenStyles[index];
             if (childStyles.shouldCalculatePositionAfterRender) {
+                const prevChildRight = getPreviousChildRight(updatedChildrenStyles, index);
                 const recalculatedChildStyles = getRecalculatedChildStyle(
                     childRef,
                     childStyles,
-                    positionShift,
+                    prevChildRight,
                 );
                 return {
                     accumulatedWidth: recalculatedChildStyles.right,
@@ -549,19 +553,29 @@ export const recalculateChildrenStyles = (
             updatedChildrenStyles: [],
         },
     );
-    return result;
+    return newChildrenStyles;
 };
+
+const getPreviousChildRight = (
+    childrenStyles: ChildStyle[],
+    currentIndex: number,
+) => (
+    currentIndex > 0
+        ? childrenStyles[currentIndex - 1].right || 0
+        : 0
+);
 
 export const getRecalculatedChildStyle = (
     childRef: React.ElementRef<typeof FocusableComponent>,
     { shouldPositionOutside, shouldCalculatePositionAfterRender, ...rest } : ChildStyle,
-    shift: number,
+    prevElementRight: number,
 ) => {
     const { left, right } = getElementLeftRight(childRef);
+    const width = right - left;
     return {
         ...rest,
-        left: left + shift,
-        right: right + shift,
+        left: prevElementRight,
+        right: prevElementRight + width,
     };
 };
 

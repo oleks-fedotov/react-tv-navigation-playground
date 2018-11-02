@@ -50,7 +50,7 @@ class LazyCollectionRenderer extends PureComponent {
                 rangeStart,
                 rangeEnd,
             });
-        }, 1);
+        }, 500);
     }
 
     fetchDataForFocusedIndex = (newIndex) => {
@@ -58,7 +58,6 @@ class LazyCollectionRenderer extends PureComponent {
             minVisibleAmountOnRight,
             minVisibleAmountOnLeft,
             totalAmount,
-            shrinkRange,
         } = this.props;
 
         const {
@@ -80,26 +79,12 @@ class LazyCollectionRenderer extends PureComponent {
                 rangeStart: newRangeStart,
                 rangeEnd: newRangeEnd,
             } = shouldRenderMoreOnLeft
-                ? shrinkRange(
-                    getIncreaseRangeOnLeft(rangeStart, rangeEnd, minVisibleAmountOnLeft),
-                    {
-                        leftBuffer: minVisibleAmountOnLeft,
-                        rightBuffer: minVisibleAmountOnRight,
-                    },
-                    -1,
-                )
-                : shrinkRange(
-                    getIncreaseRangeOnRight(
-                        rangeStart,
-                        rangeEnd,
-                        minVisibleAmountOnRight,
-                        totalAmount,
-                    ),
-                    {
-                        leftBuffer: minVisibleAmountOnLeft,
-                        rightBuffer: minVisibleAmountOnRight,
-                    },
-                    1,
+                ? getIncreaseRangeOnLeft(rangeStart, rangeEnd, minVisibleAmountOnLeft)
+                : getIncreaseRangeOnRight(
+                    rangeStart,
+                    rangeEnd,
+                    minVisibleAmountOnRight,
+                    totalAmount,
                 );
 
             const shouldRerenderElements = isRangeDifferent(

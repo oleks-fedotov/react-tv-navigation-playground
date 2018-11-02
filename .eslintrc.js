@@ -21,7 +21,8 @@ module.exports = {
         "react/jsx-indent-props": ["error", 4],
         "no-nested-ternary": "off",
         "no-use-before-define": "off",
-        "react/no-find-dom-node": "off"
+        "react/no-find-dom-node": "off",
+        "no-debugger": "off"
     },
     "plugins": ["react", "flowtype", "eslint-plugin-jest", "jest"]
 };
